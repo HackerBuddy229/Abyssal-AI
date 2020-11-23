@@ -1,6 +1,6 @@
 using System;
 
-namespace Abyssal-AI.Core.Interfaces
+namespace AbyssalAI.Core.Interfaces
 {
     public interface INeuralNetwork {
 
