@@ -1,6 +1,6 @@
 using System;
 
-namespace Abbysal-AI.Core.Neurons
+namespace AbbysalAI.Core.Neurons
 {
     public interface IPassiveNeuron
     {

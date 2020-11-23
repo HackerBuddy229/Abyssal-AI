@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+    <ProjectReference Include="..\Core\Abyssal-AI.Core.csproj" />
+  </ItemGroup>
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>Net5.0</TargetFramework>
+    <RootNamespace>AbyssalAI.Interactive</RootNamespace>
+  </PropertyGroup>
+
+</Project>
