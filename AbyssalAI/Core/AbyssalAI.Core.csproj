@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>Net5.0</TargetFramework>
-    <RootNamespace>Abyssal_AI.Core</RootNamespace>
+    <RootNamespace>AbyssalAI.Core</RootNamespace>
   </PropertyGroup>
 
 </Project>
