@@ -4,32 +4,25 @@ namespace AbyssalAI.Core.Neurons
 {
     public interface IFiringNeuron
     {
-        ref IPassiveNeuron StateNeuron { get; }
+        public float GetActivation(int epoch = 0);
 
-        public float GetActivation();
-        public float GetCost(float expected);
-
+        //dependant on GetActivation
+        public float GetCost(int epoch = 0);
 
     }
     
-    public class FiringNeuron : IFiringNeuron
+    public class FiringNeuron : PassiveNeuron, IFiringNeuron
     {
-        private IPassiveNeuron _stateNeuron;
 
-        public FiringNeuron(IPassiveNeuron stateNeuron)
-        {
-            _stateNeuron = stateNeuron;
-        }
-
-        public ref IPassiveNeuron StateNeuron => ref _stateNeuron;
-        public float GetActivation()
+        public float GetActivation(int epoch = 0)
         {
             throw new NotImplementedException();
         }
 
-        public float GetCost(float expected)
+        public float GetCost(int epoch = 0)
         {
             throw new NotImplementedException();
         }
+
     }
 }
