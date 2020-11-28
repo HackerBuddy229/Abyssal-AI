@@ -4,25 +4,23 @@ namespace AbyssalAI.Core.Neurons
 {
     public interface IFiringNeuron
     {
-        public float GetActivation(int epoch = 0);
+        public float GetActivation(float[,] activationTable);
 
         //dependant on GetActivation
-        public float GetCost(int epoch = 0);
+        public float GetCost(float[,] activationTable, float expectedValue);
 
     }
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
     {
-
-        public float GetActivation(int epoch = 0)
+        public float GetActivation(float[,] activationTable)
         {
             throw new NotImplementedException();
         }
 
-        public float GetCost(int epoch = 0)
+        public float GetCost(float[,] activationTable, float expectedValue)
         {
             throw new NotImplementedException();
         }
-
     }
 }
