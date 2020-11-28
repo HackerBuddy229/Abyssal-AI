@@ -1,15 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AbyssalAI.Core.dataWindow
+﻿namespace AbyssalAI.Core.dataWindow
 {
     public interface IDataWindow
     {
-        public float[] InputLayer { get; set; }
-        public float[] OutputLayer { get; set; }
+        public float[] InputLayer { get; }
+        public float[] OutputLayer { get; }
 
         public DataAllocation Allocation { get; }
     }

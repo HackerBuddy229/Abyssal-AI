@@ -11,9 +11,8 @@ namespace AbyssalAI.Core.Interfaces
         public float LearningRate { get; }
 
         public int MaxEpochs { get; }
-        
 
-        public int HiddenLayers { get; }
-        public int[] HiddenLayerNeuronDensity { get; }
+        public delegate float Activation(float z);
+        public int[] LayerStructure { get; }
     }
 }

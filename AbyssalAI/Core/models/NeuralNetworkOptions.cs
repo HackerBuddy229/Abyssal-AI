@@ -20,14 +20,17 @@ namespace AbyssalAI.Core.models
         /// </summary>
         public int MaxEpochs { get; } = 10000;
 
-        /// <summary>
-        /// The amount of hidden layers to create; (Default: 2)
-        /// </summary>
-        public int HiddenLayers { get; } = 2;
 
         /// <summary>
-        /// The amount of neurons to create for each hidden layer; (Default: 8 for each)
+        /// Structure of neural network; (NO DEFAULT)
         /// </summary>
-        public int[] HiddenLayerNeuronDensity { get; } = {8, 8};
+        public int[] LayerStructure { get; } = null;
+
+        /// <summary>
+        /// The activation method to use
+        /// </summary>
+        /// <param name="z">(weight*activation)+B</param>
+        /// <returns>the activation of the neuron</returns>
+        public delegate float ActivationMethod(float z);
     }
 }

@@ -66,11 +66,11 @@ namespace AbyssalAI.Core
         /// </summary>
         /// <param name="activationArray">the current activation values(See; CreateActivationArray())</param>
         /// <param name="layer">the layer of which the costs consists</param>
-        /// <param name="expectedOuterLayer">the final expected layer of the activationArray</param>
+        /// <param name="expectedLayerValues">the final expected layer of the activationArray</param>
         /// <returns>the cost of a layer in a float array</returns>
         private float[] GetLayerCost(float[,] activationArray,
             int layer, 
-            float[] expectedOuterLayer = null)
+            float[] expectedLayerValues = null)
         {
             throw new NotImplementedException("GetLayerCost");
         }

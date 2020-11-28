@@ -1,24 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace AbyssalAI.Core.Neurons.models
+﻿namespace AbyssalAI.Core.models
 {
     public class Coordinate
     {
-        public Coordinate(int x, int y)
+        public Coordinate(int layer, int neuron)
         {
-            X = x;
-            Y = y;
+            Layer = layer;
+            Neuron = neuron;
         }
 
-        public Coordinate() {}
-
-        public int X { get; set; }
-        public int Y { get; set; }
-
-        
+        public int Layer { get; }
+        public int Neuron { get; }
     }
 }

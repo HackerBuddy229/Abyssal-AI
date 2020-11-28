@@ -1,15 +1,16 @@
 using System;
-using AbyssalAI.Core.Neurons.models;
+using AbyssalAI.Core.models;
 
 namespace AbyssalAI.Core.Neurons
 {
     public abstract class PassiveNeuron
     {
-        protected PassiveNeuron() { }
         public Coordinate NeuronLocation { get; set; }
 
-        public bool IsOutputLayer { get; set; }
-        public bool IsInputLayer { get; set; }
+        /// <summary>
+        /// The activation method for the neuron; (Default to a leaky RElu)
+        /// </summary>
+        public Func<float, float> ActivationMethod = zValue => zValue > 0 ? zValue : 0;
 
         public float[,] Weights { get; set; }
         public float Bias { get; set; }
