@@ -20,19 +20,19 @@ namespace AbyssalAI.Core.Neurons
 
     public class ProposedNeuron : IProposedNeuron
     {
-        private readonly int _previousLayerDensity;
+        private readonly int _weightAmount;
         private readonly int _epochDataIndex;
 
-        public ProposedNeuron(int previousLayerDensity, int epochDataIndex)
+        public ProposedNeuron(int weightAmount, int epochDataIndex)
         {
-            _previousLayerDensity = previousLayerDensity;
+            _weightAmount = weightAmount;
             _epochDataIndex = epochDataIndex;
 
             //init private props[]
             _epochBiasProposals = new float[_epochDataIndex];
             _epochActivationProposals = new float[_epochDataIndex];
 
-            _epochWeightProposals = new float[_epochDataIndex,_previousLayerDensity];
+            _epochWeightProposals = new float[_epochDataIndex,_weightAmount];
         }
 
 
@@ -55,14 +55,14 @@ namespace AbyssalAI.Core.Neurons
 
         public float AvgActivationProposal => _epochActivationProposals.Average();
 
-        public float[] AvgWeightProposal //TODO: 💩Fix shit code...🤦‍
+        public float[] AvgWeightProposal
         {
             get
             {
-                var averageArray = new float[_epochWeightProposals.Length-1]; //fix
+                var averageArray = new float[_weightAmount]; //fix
 
                 for (var outer = 0; outer < _epochDataIndex+1; outer++)
-                for (var inner = 0; inner < _epochWeightProposals.Length; inner++)
+                for (var inner = 0; inner < _epochWeightProposals.GetLength(1); inner++)
                 {
                     averageArray[inner] += _epochWeightProposals[outer, inner];
                 }
@@ -70,7 +70,7 @@ namespace AbyssalAI.Core.Neurons
                 
                 for (var i = 0; i < averageArray.Length; i++)
                 {
-                    averageArray[i] = averageArray[i] / _previousLayerDensity;
+                    averageArray[i] = averageArray[i] / _weightAmount;
                 }
 
                 return averageArray;
