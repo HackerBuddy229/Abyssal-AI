@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 namespace AbyssalAI.Core.Neurons
 {
@@ -9,7 +9,14 @@ namespace AbyssalAI.Core.Neurons
         //dependant on GetActivation
         public float GetCost(float[,] activationTable, float expectedValue);
 
-        public float[] Adjust(float learningRate, float[,] activationArray);
+        
+        public float GetBiasAdjust(float learningRate, float[,] activationArray);
+
+        public float[] GetWeightAdjust(float learningRate, float[,] activationArray);
+        public float[] GetActivationAdjust(float learningRate, float[,] activationArray); //💩Fix to actually work
+        
+
+        public void Adjust(IProposedNeuron prop);
     }
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
@@ -24,17 +31,24 @@ namespace AbyssalAI.Core.Neurons
             throw new NotImplementedException();
         }
 
-        public float[] Adjust(float learningRate, float[,] activationArray)
+        public float GetBiasAdjust(float learningRate, float[,] activationArray)
         {
             throw new NotImplementedException();
+        }
 
-            //bias
+        public float[] GetWeightAdjust(float learningRate, float[,] activationArray)
+        {
+            throw new NotImplementedException();
+        }
 
-            //foreach wheight
+        public float[] GetActivationAdjust(float learningRate, float[,] activationArray)
+        {
+            throw new NotImplementedException();
+        }
 
-            //foreach neuron activation
-
-            // return neuron
+        public void Adjust(IProposedNeuron prop)
+        {
+            throw new NotImplementedException();
         }
     }
 }
