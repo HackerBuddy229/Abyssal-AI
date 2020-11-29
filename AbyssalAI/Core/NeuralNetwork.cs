@@ -59,24 +59,32 @@ namespace AbyssalAI.Core
 
         /// <summary>
         /// Creates an array with dimensions equal to that of the neural network with
-        /// optional pre filled dimensions depending on the window allocation 
+        /// pre filled dimensions
         /// </summary>
-        /// <param name="data">The data to be used if the allocation specifies dimensions to be pre filled</param>
-        /// <returns>an array the same size as the neural network with optionally pre-filled dimensions</returns>
+        /// <param name="data">The data to be used to pre fill the input dimension</param>
+        /// <returns>an array the same size as the neural network with pre-filled dimensions</returns>
         private float[,] CreateActivationArray(IDataWindow data)
         {
-            throw new NotImplementedException("CreateActivationArray");
+            var firstDimensionSize = Options.LayerStructure.Length-1;
+            var secondDimensionSize =
+                Options.LayerStructure.OrderBy(l => l)
+                    .First();
+
+            var activationArray = new float[firstDimensionSize, secondDimensionSize];
+
+            if (data == null || !VerifyDataWindowValidity(data)) return null;
+            for (var i = 0; i < data.OutputLayer.Length; i++)
+            {
+                activationArray[0, i] = data.InputLayer[i];
+            }
+
+            return activationArray;
+            //create array by dimensions
+            //if data != null 
+            //  fill first layer
+
         }
 
-
-        /// <summary>
-        /// Fills any voids in the current activationArray
-        /// </summary>
-        /// <param name="data">The current activation array</param>
-        private void FillActivationArray(ref float[,] data)
-        {
-            throw new NotImplementedException("FillActivationArray");
-        }
 
         /// <summary>
         /// Gets the cost of a layer.
