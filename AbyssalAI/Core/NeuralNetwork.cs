@@ -108,6 +108,8 @@ namespace AbyssalAI.Core
         /// <returns>the adjustments to be made to the layer-1 according to the layer</returns>
         private float[,] AdjustLayer(float[] costs, int layer)
         {
+
+            
             throw new NotImplementedException("AdjustLayer");
         }
 

@@ -7,9 +7,15 @@ namespace AbyssalAI.Core.Neurons
     {
         public Coordinate NeuronLocation { get; set; }
 
+        /// <summary>
         /// The activation method for the neuron; (Default to a leaky RElu)
         /// </summary>
         public Func<float, float> ActivationMethod = zValue => zValue > 0 ? zValue : 0;
+
+        public Func<float> AdjustedBias;
+        public Func<float> AdjustedWeight;
+
+        public Func<float> AdjustedActivation;
 
         public float[,] Weights { get; set; }
         public float Bias { get; set; }

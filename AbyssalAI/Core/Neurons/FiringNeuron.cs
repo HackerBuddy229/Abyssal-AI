@@ -9,6 +9,7 @@ namespace AbyssalAI.Core.Neurons
         //dependant on GetActivation
         public float GetCost(float[,] activationTable, float expectedValue);
 
+        public float[] Adjust(float learningRate, float[,] activationArray);
     }
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
@@ -21,6 +22,19 @@ namespace AbyssalAI.Core.Neurons
         public float GetCost(float[,] activationTable, float expectedValue)
         {
             throw new NotImplementedException();
+        }
+
+        public float[] Adjust(float learningRate, float[,] activationArray)
+        {
+            throw new NotImplementedException();
+
+            //bias
+
+            //foreach wheight
+
+            //foreach neuron activation
+
+            // return neuron
         }
     }
 }
