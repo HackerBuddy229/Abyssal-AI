@@ -27,11 +27,21 @@ namespace AbyssalAI.Core
             throw new NotImplementedException();
         }
 
+        /// <summary>
+        /// Validates a DataWindows structure against the structure specified in options
+        /// </summary>
+        /// <param name="dataWindow">The data window to validate</param>
+        /// <returns>Is valid</returns>
         public bool VerifyDataWindowValidity(IDataWindow dataWindow)
         {
             return dataWindow.InputLayer.Length == Options.LayerStructure[0]
                    && dataWindow.OutputLayer.Length == Options.LayerStructure[^1];
 
+        }
+
+        public bool VerifyDataWindowValidity(IDataWindow[] dataWindow)
+        {
+            return dataWindow.All(VerifyDataWindowValidity);
         }
 
 

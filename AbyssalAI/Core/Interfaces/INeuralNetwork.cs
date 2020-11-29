@@ -11,5 +11,7 @@ namespace AbyssalAI.Core.Interfaces
         public NetworkTrainingResult Train(IDataWindow[] trainingData);
 
         public bool VerifyDataWindowValidity(IDataWindow dataWindow);
+        public bool VerifyDataWindowValidity(IDataWindow[] dataWindow);
+
     }
 }
