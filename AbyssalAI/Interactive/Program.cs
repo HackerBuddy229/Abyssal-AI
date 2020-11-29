@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Abyssal_AI.Interactive
+namespace AbyssalAI.Interactive
 {
     class Program
     {

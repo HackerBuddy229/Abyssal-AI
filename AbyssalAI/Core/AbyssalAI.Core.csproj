@@ -1,0 +1,8 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>Net5.0</TargetFramework>
+    <RootNamespace>AbyssalAI.Core</RootNamespace>
+  </PropertyGroup>
+
+</Project>
