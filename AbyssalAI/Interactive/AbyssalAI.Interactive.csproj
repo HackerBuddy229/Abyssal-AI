@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Core\Abyssal-AI.Core.csproj" />
+    <ProjectReference Include="..\Core\AbyssalAI.Core.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

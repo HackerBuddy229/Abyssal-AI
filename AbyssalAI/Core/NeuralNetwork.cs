@@ -27,6 +27,13 @@ namespace AbyssalAI.Core
             throw new NotImplementedException();
         }
 
+        public bool VerifyDataWindowValidity(IDataWindow dataWindow)
+        {
+            return dataWindow.InputLayer.Length == Options.LayerStructure[0]
+                   && dataWindow.OutputLayer.Length == Options.LayerStructure[^1];
+
+        }
+
 
         private EpochResult Backpropagate(IDataWindow[] trainingData)
         {

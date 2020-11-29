@@ -8,8 +8,8 @@ namespace AbyssalAI.Core.Interfaces
     public interface INeuralNetwork {
         public INeuralNetworkOptions Options { get; }
         public FiringNeuron[,] NeuronLayers { get; set; }
-
-
         public NetworkTrainingResult Train(IDataWindow[] trainingData);
+
+        public bool VerifyDataWindowValidity(IDataWindow dataWindow);
     }
 }
