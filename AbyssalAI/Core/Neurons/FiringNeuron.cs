@@ -21,6 +21,12 @@ namespace AbyssalAI.Core.Neurons
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
     {
+
+        /// <summary>
+        /// Gets the activation value of the neuron
+        /// </summary>
+        /// <param name="activationTable">An activation table with all activations up to L-1 filled in</param>
+        /// <returns>the float value of the neuron activasion</returns>
         public float GetActivation(float[,] activationTable)
         {
             float z = 0;
