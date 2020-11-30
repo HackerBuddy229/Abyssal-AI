@@ -17,7 +17,7 @@ namespace AbyssalAI.Core.Neurons
 
         public Func<float> AdjustedActivation;
 
-        public float[,] Weights { get; set; }
+        public float[] Weights { get; set; }
         public float Bias { get; set; }
     }
 

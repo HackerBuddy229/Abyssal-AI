@@ -23,7 +23,16 @@ namespace AbyssalAI.Core.Neurons
     {
         public float GetActivation(float[,] activationTable)
         {
-            throw new NotImplementedException();
+            float z = 0;
+            //z += foreach wheight L-1
+            for (var neuron = 0; neuron < Weights.Length; neuron++) {
+                z += activationTable[NeuronLocation.Layer-1, neuron] * Weights[neuron]; //verify
+            }
+
+            z += Bias; //TODO: verify
+            var activation = ActivationMethod(z); //activation = p.activationMethod(z)
+
+            return activation;
         }
 
         public float GetCost(float[,] activationTable, float expectedValue)
