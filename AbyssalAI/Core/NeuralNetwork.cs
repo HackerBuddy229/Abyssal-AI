@@ -85,6 +85,12 @@ namespace AbyssalAI.Core
 
         }
 
+
+        /// <summary>
+        /// Fills the activation array by calling on the neurons they represent
+        /// </summary>
+        /// <param name="initActivationArray">the partailly filled array by example data</param>
+        /// <returns>the activation of all neurons in an array</returns>
         public float[,] FillActivationArray(float[,] initActivationArray) {
             //foreach layer after index 0
             //foreach neuron
