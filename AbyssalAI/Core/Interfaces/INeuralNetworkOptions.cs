@@ -13,6 +13,8 @@ namespace AbyssalAI.Core.Interfaces
         public int MaxEpochs { get; }
 
         public delegate float Activation(float z);
+
         public int[] LayerStructure { get; }
+        public int MaxLayerDensity { get; }
     }
 }

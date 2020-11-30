@@ -85,6 +85,18 @@ namespace AbyssalAI.Core
 
         }
 
+        public float[,] FillActivationArray(float[,] initActivationArray) {
+            //foreach layer after index 0
+            //foreach neuron
+            for (var layer = 1; layer <= initActivationArray.GetLength(0); layer++)
+            for (var neuron = 0; neuron <= initActivationArray.GetLength(1); neuron++) {
+                initActivationArray[layer, neuron] = 
+                NeuronLayers[layer, neuron].GetActivation(initActivationArray); // get activation
+            }
+
+            return initActivationArray; //return complete array
+        }
+
 
         /// <summary>
         /// Gets the cost of a layer.

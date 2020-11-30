@@ -26,6 +26,8 @@ namespace AbyssalAI.Core.models
         /// </summary>
         public int[] LayerStructure { get; } = null;
 
+        public int MaxLayerDensity => LayerStructure.OrderBy(x => x).First();
+
         /// <summary>
         /// The activation method to use
         /// </summary>
