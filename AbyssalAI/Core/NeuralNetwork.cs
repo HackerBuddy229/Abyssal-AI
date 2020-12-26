@@ -91,7 +91,7 @@ namespace AbyssalAI.Core
         /// </summary>
         /// <param name="initActivationArray">the partailly filled array by example data</param>
         /// <returns>the activation of all neurons in an array</returns>
-        public float[,] FillActivationArray(float[,] initActivationArray) {
+        private float[,] FillActivationArray(float[,] initActivationArray) { //TODO: add public adapter
             //foreach layer after index 0
             //foreach neuron
             for (var layer = 1; layer <= initActivationArray.GetLength(0); layer++)
@@ -103,36 +103,31 @@ namespace AbyssalAI.Core
             return initActivationArray; //return complete array
         }
 
+        private float[,] _exampleCosts;
 
-        /// <summary>
-        /// Gets the cost of a layer.
-        /// </summary>
-        /// <param name="activationArray">the current activation values(See; CreateActivationArray())</param>
-        /// <param name="layer">the layer of which the costs consists</param>
-        /// <param name="expectedLayerValues">the final expected layer of the activationArray</param>
-        /// <returns>the cost of a layer in a float array</returns>
-        private float[] GetLayerCost(float[,] activationArray,
-            int layer, 
-            float[] expectedLayerValues = null)
+        private void ResetExampleCostArray(float[,] activationArray)
         {
-            throw new NotImplementedException("GetLayerCost");
+            throw new NotImplementedException(nameof(ResetExampleCostArray));
         }
 
-        /// <summary>
-        /// utilizes the internal methods of the firing neurons in a layer to adjust the weights and biases as well as the recommended change to the previus layers activation 
-        /// </summary>
-        /// <param name="costs">the cost of the layer</param>
-        /// <param name="layer">the layer to be altered</param>
-        /// <returns>the adjustments to be made to the layer-1 according to the layer</returns>
-        private float[,] AdjustLayer(float[] costs, int layer)
+        private void FillExampleCostArray(float[] outputActivations)
         {
-
-            
-            throw new NotImplementedException("AdjustLayer");
+            throw new NotImplementedException(nameof(FillExampleCostArray));
         }
 
+        private void RelayCostToNextLayer(float[] costSeries, int depth)
+        {
+            //check depth
+            if (depth > Options.LayerStructure.Length - 1)
+                return;
 
+            for (var neuron = 0; 0 < Options.LayerStructure[^depth]; neuron++)
+            {
+                //add new partial cost to ExampleCosts
 
+                //recursive call next layer
+            }
+        }
 
 
 
