@@ -63,22 +63,20 @@ namespace AbyssalAI.Core
         /// </summary>
         /// <param name="data">The data to be used to pre fill the input dimension</param>
         /// <returns>an array the same size as the neural network with pre-filled dimensions</returns>
-        private float[,] CreateActivationArray(IDataWindow data)
+        private void CreateActivationArray(IDataWindow data)
         {
             var firstDimensionSize = Options.LayerStructure.Length-1;
             var secondDimensionSize =
                 Options.LayerStructure.OrderBy(l => l)
                     .First();
 
-            var activationArray = new float[firstDimensionSize, secondDimensionSize];
+            _exampleActivations = new float[firstDimensionSize, secondDimensionSize];
 
-            if (data == null || !VerifyDataWindowValidity(data)) return null;
+            if (data == null || !VerifyDataWindowValidity(data)) return;
             for (var i = 0; i < data.OutputLayer.Length; i++)
             {
-                activationArray[0, i] = data.InputLayer[i];
+                _exampleActivations[0, i] = data.InputLayer[i];
             }
-
-            return activationArray;
             //create array by dimensions
             //if data != null 
             //  fill first layer
@@ -89,21 +87,18 @@ namespace AbyssalAI.Core
         /// <summary>
         /// Fills the activation array by calling on the neurons they represent
         /// </summary>
-        /// <param name="initActivationArray">the partailly filled array by example data</param>
-        /// <returns>the activation of all neurons in an array</returns>
-        private float[,] FillActivationArray(float[,] initActivationArray) { //TODO: add public adapter
+        private void FillActivationArray() { //TODO: add public adapter
             //foreach layer after index 0
             //foreach neuron
-            for (var layer = 1; layer <= initActivationArray.GetLength(0); layer++)
-            for (var neuron = 0; neuron <= initActivationArray.GetLength(1); neuron++) {
-                initActivationArray[layer, neuron] = 
-                NeuronLayers[layer, neuron].GetActivation(initActivationArray); // get activation
+            for (var layer = 1; layer <= _exampleActivations.GetLength(0); layer++)
+            for (var neuron = 0; neuron <= _exampleActivations.GetLength(1); neuron++) {
+                _exampleActivations[layer, neuron] = 
+                NeuronLayers[layer, neuron].GetActivation(_exampleActivations); // get activation
             }
-
-            return initActivationArray; //return complete array
         }
 
         private float[,] _exampleCosts;
+        private float[,] _exampleActivations;
 
         private void ResetExampleCostArray(float[,] activationArray)
         {
@@ -117,13 +112,27 @@ namespace AbyssalAI.Core
 
         private void RelayCostToNextLayer(float[] costSeries, int depth)
         {
-            //check depth
-            if (depth > Options.LayerStructure.Length - 1)
-                return;
-
             for (var neuron = 0; 0 < Options.LayerStructure[^depth]; neuron++)
             {
+                var depthAsIndex = Options.LayerStructure[^depth] - depth; //TODO: check validity
+
                 //add new partial cost to ExampleCosts
+                _exampleCosts[Options.LayerStructure.Length - depth, neuron] += costSeries[neuron];
+
+                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight;
+
+                //check depth
+                if (depth > Options.LayerStructure.Length - 1)
+                    continue;
+
+                var newCostSeries = new float[Options.LayerStructure[^(depth + 1)]]; //check for 0 index?
+                for (var series = 0; series < newCostSeries.Length; series++)
+                    newCostSeries[series] *= 
+                        newSeries.Invoke(_exampleActivations[depthAsIndex, series], 
+                            NeuronLayers[depthAsIndex, neuron].Weights[series]);
+
+                RelayCostToNextLayer(newCostSeries, depth + 1);
+
 
                 //recursive call next layer
             }
