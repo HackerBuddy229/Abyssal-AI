@@ -131,10 +131,8 @@ namespace AbyssalAI.Core
                         newSeries.Invoke(_exampleActivations[depthAsIndex, series], 
                             NeuronLayers[depthAsIndex, neuron].Weights[series]);
 
-                RelayCostToNextLayer(newCostSeries, depth + 1);
-
-
                 //recursive call next layer
+                RelayCostToNextLayer(newCostSeries, depth + 1);
             }
         }
 
