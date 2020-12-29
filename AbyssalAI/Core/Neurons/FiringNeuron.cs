@@ -6,15 +6,10 @@ namespace AbyssalAI.Core.Neurons
     {
         public float GetActivation(float[,] activationTable);
 
-        //dependant on GetActivation
-        public float GetCost(float[,] activationTable, float expectedValue);
-
         
-        public float GetBiasAdjust(float learningRate, float[,] activationArray);
+        public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost);
 
-        public float[] GetWeightAdjust(float learningRate, float[,] activationArray);
-        public float[] GetActivationAdjust(float learningRate, float[,] activationArray); //💩Fix to actually work
-        
+        public float[] GetWeightAdjust(float learningRate, float[,] activationArray, float cost);
 
         public void Adjust(IProposedNeuron prop);
     }
@@ -41,21 +36,20 @@ namespace AbyssalAI.Core.Neurons
             return activation;
         }
 
-        public float GetCost(float[,] activationTable, float expectedValue)
+        //dep
+        public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost)
         {
             throw new NotImplementedException();
         }
 
-        public float GetBiasAdjust(float learningRate, float[,] activationArray)
+        //dep
+        public float[] GetWeightAdjust(float learningRate, float[,] activationArray, float cost)
         {
             throw new NotImplementedException();
         }
 
-        public float[] GetWeightAdjust(float learningRate, float[,] activationArray)
-        {
-            throw new NotImplementedException();
-        }
 
+        //dep
         public float[] GetActivationAdjust(float learningRate, float[,] activationArray)
         {
             throw new NotImplementedException();
