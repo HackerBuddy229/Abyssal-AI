@@ -1,4 +1,7 @@
 ﻿using System;
+using AbyssalAI.Core.helpers;
+using AbyssalAI.Core.Interfaces;
+using AbyssalAI.Core.models;
 
 namespace AbyssalAI.Core.Neurons
 {
@@ -16,6 +19,17 @@ namespace AbyssalAI.Core.Neurons
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
     {
+
+        public FiringNeuron(Coordinate location, 
+            int amountOfWeights, 
+            IInitialiser<float> weightInitialiser = null,
+            IInitialiser<float> biasInitialiser = null)
+        {
+            NeuronLocation = location;
+
+            InitialiseWeights(weightInitialiser ?? new Initialiser(), amountOfWeights);
+            InitialiseBias(biasInitialiser ?? new Initialiser());
+        }
 
         /// <summary>
         /// Gets the activation value of the neuron
@@ -36,21 +50,14 @@ namespace AbyssalAI.Core.Neurons
             return activation;
         }
 
-        //dep
+        
         public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost)
         {
             throw new NotImplementedException();
         }
 
-        //dep
+        
         public float[] GetWeightAdjust(float learningRate, float[,] activationArray, float cost)
-        {
-            throw new NotImplementedException();
-        }
-
-
-        //dep
-        public float[] GetActivationAdjust(float learningRate, float[,] activationArray)
         {
             throw new NotImplementedException();
         }
@@ -58,6 +65,18 @@ namespace AbyssalAI.Core.Neurons
         public void Adjust(IProposedNeuron prop)
         {
             throw new NotImplementedException();
+        }
+
+        private void InitialiseWeights(IInitialiser<float> initialiser, int amountOfWeights)
+        {
+            Weights = new float[amountOfWeights];
+            for (var weight = 0; weight < amountOfWeights; weight++)
+                Weights[weight] = initialiser.GenerateNewValue();
+        }
+
+        private void InitialiseBias(IInitialiser<float> initialiser)
+        {
+            Bias = initialiser.GenerateNewValue();
         }
     }
 }

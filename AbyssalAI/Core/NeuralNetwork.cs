@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using AbyssalAI.Core.dataWindow;
@@ -20,6 +21,15 @@ namespace AbyssalAI.Core
         private void GenerateNetwork()
         {
 
+            //create neurons
+            var output = new FiringNeuron[Options.LayerStructure.Length,Options.MaxLayerDensity];
+
+            for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
+            for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
+                output[layer, neuron] = 
+                    new FiringNeuron(new Coordinate(layer, neuron), Options.LayerStructure[layer-1]);
+
+            NeuronLayers = output;
         }
 
         public INeuralNetworkOptions Options { get; }
@@ -122,7 +132,7 @@ namespace AbyssalAI.Core
                 (float)Math.Pow(_exampleActivations[outputLayerIndex, neuron] - expectedOutput[neuron], 2);
 
                 //determine next layer cost 
-                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight;
+                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight; //extract
 
                 var costSeries = new float[NeuronLayers[outputLayerIndex, neuron].Weights.Length];
                 for (var weight = 0; weight < costSeries.Length; weight++)
@@ -145,7 +155,7 @@ namespace AbyssalAI.Core
                 //add new partial cost to ExampleCosts
                 _exampleCosts[Options.LayerStructure.Length - depth, neuron] += costSeries[neuron];
 
-                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight;
+                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight; //extract
 
                 //check depth
                 if (depth > Options.LayerStructure.Length - 1)
