@@ -102,12 +102,34 @@ namespace AbyssalAI.Core
 
         private void ResetExampleCostArray(float[,] activationArray)
         {
-            throw new NotImplementedException(nameof(ResetExampleCostArray));
+            _exampleCosts = new float[Options.LayerStructure.Length,Options.MaxLayerDensity];
         }
 
-        private void FillExampleCostArray(float[] outputActivations)
+        private void FillExampleCostArray(float[] expectedOutput)
         {
-            throw new NotImplementedException(nameof(FillExampleCostArray));
+            //for output layer
+            for (var neuron = 0; neuron < Options.LayerStructure[^0]; neuron++)
+            {
+                var outputLayerIndex = Options.LayerStructure.Length - 1;
+
+
+                //determine cost and set in array
+                _exampleCosts[Options.LayerStructure.Length-1, neuron] =
+                (float)Math.Pow(_exampleActivations[outputLayerIndex, neuron] - expectedOutput[neuron], 2);
+
+                //determine next layer cost 
+                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight;
+
+                var costSeries = new float[NeuronLayers[outputLayerIndex, neuron].Weights.Length];
+                for (var weight = 0; weight < costSeries.Length; weight++)
+                    costSeries[weight] = 
+                        newSeries.Invoke(_exampleActivations[outputLayerIndex-1, weight], 
+                            NeuronLayers[outputLayerIndex, neuron].Weights[weight]);
+
+
+                //call RelayCostToNextLayer()
+                RelayCostToNextLayer(costSeries, 1);
+            }
         }
 
         private void RelayCostToNextLayer(float[] costSeries, int depth)
@@ -128,7 +150,7 @@ namespace AbyssalAI.Core
                 var newCostSeries = new float[Options.LayerStructure[^(depth + 1)]]; //check for 0 index?
                 for (var series = 0; series < newCostSeries.Length; series++)
                     newCostSeries[series] *= 
-                        newSeries.Invoke(_exampleActivations[depthAsIndex, series], 
+                        newSeries.Invoke(_exampleActivations[depthAsIndex-1, series],
                             NeuronLayers[depthAsIndex, neuron].Weights[series]);
 
                 //recursive call next layer
