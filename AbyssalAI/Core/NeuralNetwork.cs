@@ -17,6 +17,10 @@ namespace AbyssalAI.Core
             Options = options ?? new NeuralNetworkOptions();
         }
 
+        private void GenerateNetwork()
+        {
+
+        }
 
         public INeuralNetworkOptions Options { get; }
         public FiringNeuron[,] NeuronLayers { get; set; }
@@ -100,7 +104,7 @@ namespace AbyssalAI.Core
         private float[,] _exampleCosts;
         private float[,] _exampleActivations;
 
-        private void ResetExampleCostArray(float[,] activationArray)
+        private void ResetExampleCostArray()
         {
             _exampleCosts = new float[Options.LayerStructure.Length,Options.MaxLayerDensity];
         }
