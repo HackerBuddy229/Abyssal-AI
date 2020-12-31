@@ -8,7 +8,6 @@ namespace AbyssalAI.Core.Neurons
     public interface IFiringNeuron
     {
         public float GetActivation(float[,] activationTable);
-
         
         public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost);
 
@@ -19,7 +18,6 @@ namespace AbyssalAI.Core.Neurons
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
     {
-
         public FiringNeuron(Coordinate location, 
             int amountOfWeights, 
             IInitialiser<float> weightInitialiser = null,
@@ -53,13 +51,35 @@ namespace AbyssalAI.Core.Neurons
         
         public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost)
         {
-            throw new NotImplementedException();
+            var activation = activationArray[NeuronLocation.Layer, NeuronLocation.Neuron];
+            var derivative = BiasDerivative.Invoke(cost, activation);
+            var adjustment = derivative * learningRate;
+
+            return adjustment;
         }
 
         
         public float[] GetWeightAdjust(float learningRate, float[,] activationArray, float cost)
         {
-            throw new NotImplementedException();
+            //activations
+            var activations = new float[Weights.Length];
+            for (var weight = 0; weight < activations.Length; weight++)
+                activations[weight] = activationArray[NeuronLocation.Layer - 1, weight];
+
+            //derivation
+            var derivation = new float[activations.Length];
+            for (var derivative = 0; derivative < derivation.Length; derivative++)
+                derivation[derivative] =
+                    WeightDerivative.Invoke(cost,
+                        activationArray[NeuronLocation.Layer, NeuronLocation.Neuron],
+                        activations[derivative]);
+
+            //adjustment
+            var adjustment = new float[derivation.Length];
+            for (var adjustIndex = 0; adjustIndex < adjustment.Length; adjustIndex++)
+                adjustment[adjustIndex] = derivation[adjustIndex] * learningRate;
+
+            return adjustment;
         }
 
         public void Adjust(IProposedNeuron prop)

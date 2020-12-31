@@ -16,6 +16,8 @@ namespace AbyssalAI.Core
         public NeuralNetwork(INeuralNetworkOptions options = null)
         {
             Options = options ?? new NeuralNetworkOptions();
+
+            GenerateNetwork(); //dependant on options
         }
 
         private void GenerateNetwork()
