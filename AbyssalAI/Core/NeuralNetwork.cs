@@ -56,6 +56,16 @@ namespace AbyssalAI.Core
             throw new NotImplementedException();
         }
 
+        public IValidationResult Validate(IDataWindow[] data)
+        {
+            throw new NotImplementedException();
+        }
+
+        public float[] GetActivation(IDataWindow data)
+        {
+            throw new NotImplementedException();
+        }
+
         /// <summary>
         /// Validates a DataWindows structure against the structure specified in options
         /// </summary>
