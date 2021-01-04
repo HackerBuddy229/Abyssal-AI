@@ -8,6 +8,6 @@ namespace AbyssalAI.Core.models
 {
     public class EpochResult
     {
-        
+        public int EpochIndex { get; set; }
     }
 }

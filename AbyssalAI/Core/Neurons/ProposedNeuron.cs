@@ -21,18 +21,18 @@ namespace AbyssalAI.Core.Neurons
     public class ProposedNeuron : IProposedNeuron
     {
         private readonly int _weightAmount;
-        private readonly int _epochDataIndex;
+        private readonly int _epochDataCount;
 
-        public ProposedNeuron(int weightAmount, int epochDataIndex)
+        public ProposedNeuron(int weightAmount, int epochDataCount)
         {
             _weightAmount = weightAmount;
-            _epochDataIndex = epochDataIndex;
+            _epochDataCount = epochDataCount;
 
             //init private props[]
-            _epochBiasProposals = new float[_epochDataIndex];
-            _epochActivationProposals = new float[_epochDataIndex];
+            _epochBiasProposals = new float[_epochDataCount];
+            _epochActivationProposals = new float[_epochDataCount];
 
-            _epochWeightProposals = new float[_epochDataIndex,_weightAmount];
+            _epochWeightProposals = new float[_epochDataCount,_weightAmount];
         }
 
 
@@ -61,7 +61,7 @@ namespace AbyssalAI.Core.Neurons
             {
                 var averageArray = new float[_weightAmount]; //fix
 
-                for (var outer = 0; outer < _epochDataIndex+1; outer++)
+                for (var outer = 0; outer < _epochDataCount+1; outer++)
                 for (var inner = 0; inner < _epochWeightProposals.GetLength(1); inner++)
                 {
                     averageArray[inner] += _epochWeightProposals[outer, inner];

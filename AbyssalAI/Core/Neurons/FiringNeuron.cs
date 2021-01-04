@@ -37,7 +37,7 @@ namespace AbyssalAI.Core.Neurons
         public float GetActivation(float[,] activationTable)
         {
             float z = 0;
-            //z += foreach wheight L-1
+            //z += foreach weight L-1
             for (var neuron = 0; neuron < Weights.Length; neuron++) {
                 z += activationTable[NeuronLocation.Layer-1, neuron] * Weights[neuron]; //verify
             }

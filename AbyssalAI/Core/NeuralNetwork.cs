@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
@@ -38,8 +39,20 @@ namespace AbyssalAI.Core
         public FiringNeuron[,] NeuronLayers { get; set; }
 
 
-        public NetworkTrainingResult Train(IDataWindow[] trainingData)
+        public NetworkTrainingResult Train(IDataWindow[] trainingData, out ConcurrentBag<EpochResult> concurrentEpochCollection)
         {
+            concurrentEpochCollection = new ConcurrentBag<EpochResult>();
+
+            for (var epoch = 0; epoch < Options.MaxEpochs; epoch++)
+            {
+                var result = Backpropagate(trainingData);
+                result.EpochIndex = epoch;
+
+                concurrentEpochCollection.Add(result);
+
+                //check if value is achived
+            }
+
             throw new NotImplementedException();
         }
 
@@ -63,14 +76,53 @@ namespace AbyssalAI.Core
 
         private EpochResult Backpropagate(IDataWindow[] trainingData)
         {
-            throw new NotImplementedException("Backpropagate");
-            //current cost init null
-            //foreach window
-            //foreach layer
+            var output = new EpochResult();
 
-            //GetLayerCosts()
-            //current cost = AdjustLayer
+            //create adjustment neurons 
+            for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
+            for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
+                _proposedNeurons[layer, neuron] =
+                    new ProposedNeuron(NeuronLayers[layer, neuron].Weights.Length, trainingData.Length);
+                
+            // for window
+            for (var window = 0; window < trainingData.Length; window++)
+            {
+                //get activation
+                CreateActivationArray(trainingData[window]);
+                FillActivationArray();
 
+                //get cost
+                ResetExampleCostArray();
+                FillExampleCostArray(trainingData[window].OutputLayer);
+
+                //for each neuron
+                for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
+                for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
+                {
+                    //get adjustments
+                    var biasAdjustment = NeuronLayers[layer, neuron]
+                        .GetBiasAdjust(Options.LearningRate, _exampleActivations, _exampleCosts[layer, neuron]);
+
+                    var weightAdjustment = NeuronLayers[layer, neuron]
+                        .GetWeightAdjust(Options.LearningRate, _exampleActivations, _exampleCosts[layer, neuron]);
+
+                    //set adjustment
+
+                    _proposedNeurons[layer, neuron].AddBiasProposal(biasAdjustment);
+                    _proposedNeurons[layer, neuron].AddWeightProposal(weightAdjustment);
+                }
+
+            }
+
+            //after for
+            //make adjustment
+
+            for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
+            for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
+                NeuronLayers[layer, neuron].Adjust(_proposedNeurons[layer, neuron]);
+
+            
+            return output;
         }
 
         /// <summary>
@@ -116,10 +168,11 @@ namespace AbyssalAI.Core
         private float[,] _exampleCosts;
         private float[,] _exampleActivations;
 
-        private void ResetExampleCostArray()
-        {
+        private IProposedNeuron[,] _proposedNeurons;
+
+        private void ResetExampleCostArray() =>
             _exampleCosts = new float[Options.LayerStructure.Length,Options.MaxLayerDensity];
-        }
+        
 
         private void FillExampleCostArray(float[] expectedOutput)
         {
