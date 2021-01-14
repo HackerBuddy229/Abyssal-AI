@@ -1,0 +1,45 @@
+﻿@page "/createTemplate"
+@using System.Text.Json
+@using AbyssalAI.Core.helpers
+@inject TemplateService TemplateService
+
+
+<style>
+    form input {
+        display: block;
+    }
+</style>
+
+
+<form>
+    <input type="text" placeholder="Title" @bind="_title" />
+    <input type="text" placeholder="InputUri" @bind="_uri" />
+    <textarea @bind="_json">{}</textarea>
+    <button @onclick="SaveTemplate">Submit</button>
+</form>
+@code {
+
+
+    private string _title;
+    private string _uri;
+    private string _json;
+
+    private void SaveTemplate()
+    {
+        var valid = !string.IsNullOrWhiteSpace(_title) &&
+                    !string.IsNullOrWhiteSpace(_uri) &&
+                    !string.IsNullOrWhiteSpace(_json);
+        if (!valid)
+            return;
+
+        var template = new CurrencyDataNetworkTemplate(new CsvFinancialSerializer(), new DataDistributor())
+        {
+            Title = _title,
+            DataUri = new Uri(_uri),
+            NetworkStructure = JsonSerializer.Deserialize<int[]>(_json)
+        };
+
+        TemplateService.CreateTemplate(template);
+    }
+
+}

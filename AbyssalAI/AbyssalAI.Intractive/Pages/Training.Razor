@@ -1,0 +1,80 @@
+﻿@page "/training"
+@using AbyssalAI.Core.models
+@using System.Timers
+@using System.Data
+@using AbyssalAI.Core
+@using System.Collections.Concurrent
+@inject ApplicationState State
+<h1>Training Control</h1>
+
+@*State control*@
+<div>
+    <p>Current training state: @CurrentTrainingState</p>
+    @if (State.IsTraining)
+    {
+        <button class="btn btn-danger">Suspend Training</button>
+    }
+    else
+    {
+        <button class="btn btn-primary" @onclick="StartTraining">Start Training</button>
+    }
+</div>
+
+@*Bag view*@
+<div>
+    <table class="table">
+        <tr>
+            <td>Index</td>
+        </tr>
+        @foreach (var epoch in _localTrainingState)
+        {
+            <tr>
+                <td>@epoch.EpochIndex</td>
+            </tr>
+        }
+    </table>
+</div>
+
+
+@code
+{
+    private Timer _updateTimer;
+
+    private IEnumerable<EpochResult> _localTrainingState;
+
+    private string CurrentTrainingState =>
+        State.IsTraining ? "The network is currently active" : "No process is currently active";
+
+    protected override void OnInitialized()
+    {
+        UpdateLocalState();
+    }
+
+    private void UpdateLocalState() => 
+        _localTrainingState = State.TrainingStatus != null ?
+        State.TrainingStatus.ToList().OrderBy(x => x.EpochIndex) : new List<EpochResult>();
+
+    private void StartTimer(int interval = 5000)
+    {
+        _updateTimer = new Timer(interval);
+        _updateTimer.Elapsed += (sender, args) => UpdateLocalState();
+        _updateTimer.Start();
+    }
+
+    private void StartTraining()
+    {
+        var options = new NeuralNetworkOptions
+        {
+            LayerStructure = State.SelectedTemplate.NetworkStructure,
+            LearningRate = State.SelectedTemplate.LearningRate,
+            MaxEpochs = State.SelectedTemplate.MaxEpochs
+        };
+
+        State.NeuralNetwork = new NeuralNetwork(options);
+
+        State.TrainingStatus = new ConcurrentBag<EpochResult>();
+        State.NeuralNetwork.Train(State.SelectedTemplate.GetDataWindow().TrainingData, out State._trainingStatus);
+
+        StartTimer();
+    }
+}

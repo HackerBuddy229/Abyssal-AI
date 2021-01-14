@@ -8,13 +8,13 @@ namespace AbyssalAI.Core.Interfaces
 {
     public interface INeuralNetworkOptions
     {
-        public float LearningRate { get; }
+        public float LearningRate { get; set; }
 
-        public int MaxEpochs { get; }
+        public int MaxEpochs { get; set; }
 
         public delegate float Activation(float z);
 
-        public int[] LayerStructure { get; }
+        public int[] LayerStructure { get; set; }
         public int MaxLayerDensity { get; }
     }
 }

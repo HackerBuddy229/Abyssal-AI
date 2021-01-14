@@ -1,0 +1,42 @@
+﻿@page "/config"
+@using AbyssalAI.Interactive.services
+@inject ApplicationState State
+@inject TemplateService TemplateService
+
+<h1>Template Selection</h1>
+@if (State.SelectedTemplate != null)
+{
+    <h3>Selected template: @State.SelectedTemplate.Title</h3>
+}
+
+
+<form>
+    <select @bind="selected">
+        @foreach (var template in _options)
+        {
+            <option value="@template.Title">@template.Title</option>
+        }
+    </select>
+    <button @onclick="SelectTemplate">Select</button>
+</form>
+
+
+@code
+{
+    private IList<INetworkTemplate> _options;
+
+    private string selected = String.Empty;
+
+    protected override void OnInitialized()
+    {
+        _options = TemplateService.GetTemplates() ?? new List<INetworkTemplate>();
+    }
+
+    private void SelectTemplate()
+    {
+        if (selected != null)
+            State.SelectedTemplate = _options.FirstOrDefault(x => x.Title == selected);
+
+        StateHasChanged();
+    }
+}

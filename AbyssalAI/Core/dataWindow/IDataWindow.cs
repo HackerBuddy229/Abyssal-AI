@@ -2,9 +2,9 @@
 {
     public interface IDataWindow
     {
-        public float[] InputLayer { get; }
-        public float[] OutputLayer { get; }
+        public float[] InputLayer { get; set; }
+        public float[] OutputLayer { get; set; }
 
-        public DataAllocation Allocation { get; }
+        public DataAllocation Allocation { get; set; }
     }
 }

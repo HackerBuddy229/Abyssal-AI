@@ -9,9 +9,11 @@
             Allocation = allocation;
         }
 
-        public float[] InputLayer { get; }
-        public float[] OutputLayer { get; }
-        public DataAllocation Allocation { get; }
+        public DataWindow() { }
+
+        public float[] InputLayer { get; set; }
+        public float[] OutputLayer { get; set; }
+        public DataAllocation Allocation { get; set; }
     }
 
     
