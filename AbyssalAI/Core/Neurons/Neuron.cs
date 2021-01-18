@@ -1,0 +1,20 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace AbyssalAI.Core.Neurons
+{
+    public class Neuron: FiringNeuron
+    {
+        public Neuron() : base()
+        {
+            
+        }
+
+	public void hello(string test) {
+		Console.WriteLine(test);
+	}
+    }
+}
