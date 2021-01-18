@@ -10,7 +10,6 @@ namespace AbyssalAI.Core.Neurons
     {
         public void AddBiasProposal(float prop);
         public void AddWeightProposal(float[] prop);
-        public void AddActivationProposal(float prop);
 
         public float AvgBiasProposal { get; }
         public float AvgActivationProposal { get; }
@@ -46,10 +45,6 @@ namespace AbyssalAI.Core.Neurons
             throw new NotImplementedException();
         }
 
-        public void AddActivationProposal(float prop)
-        {
-            throw new NotImplementedException();
-        }
 
         public float AvgBiasProposal => _epochBiasProposals.Average();
 

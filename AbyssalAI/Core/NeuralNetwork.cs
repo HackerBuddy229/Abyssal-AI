@@ -166,7 +166,7 @@ namespace AbyssalAI.Core
         /// <summary>
         /// Fills the activation array by calling on the neurons they represent
         /// </summary>
-        private void FillActivationArray() { //TODO: add public adapter
+        private void FillActivationArray() {
             //foreach layer after index 0
             //foreach neuron
             for (var layer = 1; layer <= _exampleActivations.GetLength(0); layer++)

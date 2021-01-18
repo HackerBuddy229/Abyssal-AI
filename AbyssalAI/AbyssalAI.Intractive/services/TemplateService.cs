@@ -7,7 +7,6 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 using AbyssalAI.Interactive.models;
-using static System.String;
 
 namespace AbyssalAI.Interactive.services
 {
@@ -20,7 +19,7 @@ namespace AbyssalAI.Interactive.services
 
             //get file names
             var templatesUris = Directory.EnumerateFiles(_templateLocation.AbsolutePath);
-            var uris = templatesUris as string[] ?? 
+            var uris =  
                        templatesUris.Where(x => x.Split(".").Any(y => y == "json")).ToArray();
 
             if (!uris.Any())
@@ -31,7 +30,7 @@ namespace AbyssalAI.Interactive.services
             foreach (var uri in uris)
             {
                 var json = File.ReadAllText(uri);
-                if (IsNullOrWhiteSpace(json))
+                if (string.IsNullOrWhiteSpace(json))
                     continue;
 
                 var template = JsonSerializer.Deserialize<CurrencyDataNetworkTemplate>(json);
@@ -50,7 +49,7 @@ namespace AbyssalAI.Interactive.services
             var json = JsonSerializer.Serialize(template);
 
             //filename
-            var filename = Empty;
+            var filename = string.Empty;
             var filenameComponents = template.Title.Split(" ").ToList();
             filenameComponents.ForEach(x => filename += x);
 
