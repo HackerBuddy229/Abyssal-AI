@@ -84,7 +84,9 @@ namespace AbyssalAI.Core.Neurons
 
         public void Adjust(IProposedNeuron prop)
         {
-            throw new NotImplementedException();
+            Bias += prop.AvgBiasProposal;
+            for (var weight = 0; weight < Weights.Length; weight++)
+                Weights[weight] += prop.AvgWeightProposal[weight];
         }
 
         private void InitialiseWeights(IInitialiser<float> initialiser, int amountOfWeights)

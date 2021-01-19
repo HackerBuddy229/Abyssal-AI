@@ -12,7 +12,6 @@ namespace AbyssalAI.Core.Neurons
         public void AddWeightProposal(float[] prop);
 
         public float AvgBiasProposal { get; }
-        public float AvgActivationProposal { get; }
         public float[] AvgWeightProposal { get; }
         
     }
@@ -29,7 +28,6 @@ namespace AbyssalAI.Core.Neurons
 
             //init private props[]
             _epochBiasProposals = new float[_epochDataCount];
-            _epochActivationProposals = new float[_epochDataCount];
 
             _epochWeightProposals = new float[_epochDataCount,_weightAmount];
         }
@@ -56,8 +54,6 @@ namespace AbyssalAI.Core.Neurons
 
 
         public float AvgBiasProposal => _epochBiasProposals.Average();
-
-        public float AvgActivationProposal => _epochActivationProposals.Average();
 
         public float[] AvgWeightProposal
         {
@@ -86,7 +82,5 @@ namespace AbyssalAI.Core.Neurons
         private readonly float[] _epochBiasProposals;
 
         private readonly float[,] _epochWeightProposals;
-
-        private readonly float[] _epochActivationProposals;
     }
 }
