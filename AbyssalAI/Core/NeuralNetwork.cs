@@ -88,7 +88,10 @@ namespace AbyssalAI.Core
         private EpochResult Backpropagate(IDataWindow[] trainingData)
         {
             var output = new EpochResult();
-
+            var totalAmountOfData = trainingData.Length;
+            var amountOfCorrect = 0;
+            
+            
             //create adjustment neurons 
             for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
@@ -101,6 +104,18 @@ namespace AbyssalAI.Core
                 //get activation
                 CreateActivationArray(trainingData[window]);
                 FillActivationArray();
+
+                var isSuccessful = (
+                    Math.Max(_exampleActivations
+                        [_exampleActivations.GetLength(0), 0], trainingData[window]
+                        .OutputLayer[0])
+                    -
+                    Math.Min(_exampleActivations
+                        [_exampleActivations.GetLength(0), 0], trainingData[window]
+                        .OutputLayer[0])
+                    < 0.5F);
+                if (isSuccessful)
+                    amountOfCorrect++;
 
                 //get cost
                 ResetExampleCostArray();
@@ -132,7 +147,7 @@ namespace AbyssalAI.Core
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 NeuronLayers[layer, neuron].Adjust(_proposedNeurons[layer, neuron]);
 
-            
+            output.Accuracy = amountOfCorrect / totalAmountOfData;
             return output;
         }
 
