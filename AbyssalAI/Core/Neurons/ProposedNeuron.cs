@@ -43,7 +43,15 @@ namespace AbyssalAI.Core.Neurons
 
         public void AddWeightProposal(float[] prop)
         {
-            throw new NotImplementedException();
+            for (var index = 0; index < _epochWeightProposals.GetLength(0); index++)
+            {
+                if (_epochWeightProposals[index, 0] != 0)
+                    continue;
+
+                for (var props = 0; props < prop.Length; props++)
+                    _epochWeightProposals[index, props] = prop[props];
+                break;
+            }
         }
 
 

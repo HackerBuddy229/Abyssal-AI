@@ -179,7 +179,7 @@ namespace AbyssalAI.Core
         private float[,] _exampleCosts;
         private float[,] _exampleActivations;
 
-        private IProposedNeuron[,] _proposedNeurons;
+        private IProposedNeuron[,] _proposedNeurons; //TODO: fix to default
 
         private void ResetExampleCostArray() =>
             _exampleCosts = new float[Options.LayerStructure.Length,Options.MaxLayerDensity];
