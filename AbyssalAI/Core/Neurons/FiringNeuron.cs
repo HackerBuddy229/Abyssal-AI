@@ -33,7 +33,7 @@ namespace AbyssalAI.Core.Neurons
         /// Gets the activation value of the neuron
         /// </summary>
         /// <param name="activationTable">An activation table with all activations up to L-1 filled in</param>
-        /// <returns>the float value of the neuron activasion</returns>
+        /// <returns>the float value of the neuron activation</returns>
         public float GetActivation(float[,] activationTable)
         {
             float z = 0;

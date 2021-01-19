@@ -37,7 +37,8 @@ namespace AbyssalAI.Core.Neurons
 
         public void AddBiasProposal(float prop)
         {
-            throw new NotImplementedException();
+            var index = _epochBiasProposals.Select((value, innerIndex) => value == 0 ? innerIndex : int.MaxValue).First();
+            _epochBiasProposals[index] = prop;
         }
 
         public void AddWeightProposal(float[] prop)
