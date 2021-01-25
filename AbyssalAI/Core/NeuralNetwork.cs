@@ -45,6 +45,7 @@ namespace AbyssalAI.Core
 
             for (var epoch = 0; epoch < Options.MaxEpochs; epoch++)
             {
+                //train with data
                 var result = Backpropagate(trainingData);
                 result.EpochIndex = epoch;
 
@@ -256,7 +257,7 @@ namespace AbyssalAI.Core
                             NeuronLayers[depthAsIndex, neuron].Weights[series]);
 
                 //recursive call next layer
-                RelayCostToNextLayer(newCostSeries, depth + 1);
+                RelayCostToNextLayer(newCostSeries, depth++);
             }
         }
 
