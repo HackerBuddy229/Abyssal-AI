@@ -51,9 +51,16 @@ namespace AbyssalAI.Core
                 concurrentEpochCollection.Add(result);
 
                 //check if value is achived
+                if (Options.AccuracyGoal != null && result.Accuracy > Options.AccuracyGoal)
+                    break;
             }
 
-            throw new NotImplementedException();
+            var trainingResult = new NetworkTrainingResult()
+            {
+                EpochResults = concurrentEpochCollection.OrderBy(x => x.EpochIndex).ToList()
+            };
+
+            return trainingResult;
         }
 
         public IValidationResult Validate(IDataWindow[] data)

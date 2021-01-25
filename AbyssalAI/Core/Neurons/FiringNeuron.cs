@@ -42,7 +42,7 @@ namespace AbyssalAI.Core.Neurons
                 z += activationTable[NeuronLocation.Layer-1, neuron] * Weights[neuron]; //verify
             }
 
-            z += Bias; //TODO: verify
+            z += Bias;
             var activation = ActivationMethod(z); //activation = p.activationMethod(z)
 
             return activation;

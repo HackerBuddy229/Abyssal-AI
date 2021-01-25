@@ -21,6 +21,8 @@ namespace AbyssalAI.Core.models
         public int MaxEpochs { get; set; } = 10000;
 
 
+        public float? AccuracyGoal { get; set; } = 0.8F;
+
         /// <summary>
         /// Structure of neural network; (NO DEFAULT)
         /// </summary>
