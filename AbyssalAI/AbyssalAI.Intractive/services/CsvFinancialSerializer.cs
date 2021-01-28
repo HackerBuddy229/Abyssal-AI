@@ -21,7 +21,7 @@ namespace AbyssalAI.Interactive.services
 
             var output = csv.GetRecords<CurrencyData>();
 
-            return output;
+            return output.ToList();
         }
     }
 }

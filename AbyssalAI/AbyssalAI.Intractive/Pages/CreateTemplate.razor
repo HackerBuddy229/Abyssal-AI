@@ -35,7 +35,7 @@
         var template = new CurrencyDataNetworkTemplate(new CsvFinancialSerializer(), new DataDistributor())
         {
             Title = _title,
-            DataUri = new Uri(_uri),
+            DataUri = _uri,
             NetworkStructure = JsonSerializer.Deserialize<int[]>(_json)
         };
 

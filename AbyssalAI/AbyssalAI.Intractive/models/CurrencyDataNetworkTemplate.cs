@@ -12,7 +12,7 @@ namespace AbyssalAI.Interactive.models
     {
         public string Title { get; set; }
 
-        public Uri DataUri { get; set; }
+        public string DataUri { get; set; }
         public float LearningRate { get; set; }
         public int MaxEpochs { get; set; }
         public int[] NetworkStructure { get; set; }
@@ -35,7 +35,7 @@ namespace AbyssalAI.Interactive.models
 
         public IDataRation GetDataWindow()
         {
-            var data = _dataSerializer.SerializeData(DataUri.AbsolutePath);
+            var data = _dataSerializer.SerializeData(DataUri);
             var window = TranslateToDataWindows(data, 4);
 
             var ration = _dataDistributor.CreateDefaultDataRation(window);

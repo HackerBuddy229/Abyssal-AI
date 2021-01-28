@@ -23,9 +23,8 @@ namespace AbyssalAI.Core
 
         private void GenerateNetwork()
         {
-
             //create neurons
-            var output = new FiringNeuron[Options.LayerStructure.Length,Options.MaxLayerDensity];
+            var output = new FiringNeuron[Options.LayerStructure.Length, Options.MaxLayerDensity];
 
             for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
@@ -33,6 +32,7 @@ namespace AbyssalAI.Core
                     new FiringNeuron(new Coordinate(layer, neuron), Options.LayerStructure[layer-1]);
 
             NeuronLayers = output;
+            _proposedNeurons = new IProposedNeuron[Options.LayerStructure.Length, Options.MaxLayerDensity];
         }
 
         public INeuralNetworkOptions Options { get; }
@@ -92,7 +92,7 @@ namespace AbyssalAI.Core
             return dataWindow.All(VerifyDataWindowValidity);
         }
 
-
+        
         private EpochResult Backpropagate(IDataWindow[] trainingData)
         {
             var output = new EpochResult();

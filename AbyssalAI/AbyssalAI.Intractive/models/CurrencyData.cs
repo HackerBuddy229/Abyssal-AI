@@ -18,11 +18,12 @@ namespace AbyssalAI.Interactive.models
 
         public float High { get; set; }
         public float Low { get; set; }
-
-        [Name("Close*")]
+        
         public float Close { get; set; }
 
-        [Name("Adj Close**")]
+        [Name("Adj Close")]
         public float AdjClose { get; set; }
+        
+        public float Volume { get; set; }
     }
 }

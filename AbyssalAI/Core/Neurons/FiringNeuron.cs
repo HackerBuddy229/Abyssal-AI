@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using AbyssalAI.Core.helpers;
 using AbyssalAI.Core.Interfaces;
 using AbyssalAI.Core.models;
@@ -36,18 +37,15 @@ namespace AbyssalAI.Core.Neurons
         /// <returns>the float value of the neuron activation</returns>
         public float GetActivation(float[,] activationTable)
         {
-            float z = 0;
+            float z = Weights.Select((t, neuron) => activationTable[NeuronLocation.Layer - 1, neuron] * t).Sum();
             //z += foreach weight L-1
-            for (var neuron = 0; neuron < Weights.Length; neuron++) {
-                z += activationTable[NeuronLocation.Layer-1, neuron] * Weights[neuron]; //verify
-            }
 
             z += Bias;
             var activation = ActivationMethod(z); //activation = p.activationMethod(z)
 
             return activation;
         }
-
+        
         
         public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost)
         {

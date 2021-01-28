@@ -11,7 +11,7 @@ namespace AbyssalAI.Interactive.services
     public interface INetworkTemplate
     {
         public string Title { get; set; }
-        public Uri DataUri { get; set; }
+        public string DataUri { get; set; }
         public float LearningRate { get; set; }
         public int MaxEpochs { get; set; }
 
