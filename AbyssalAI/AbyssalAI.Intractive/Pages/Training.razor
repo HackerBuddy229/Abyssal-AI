@@ -24,12 +24,14 @@
 <div>
     <table class="table">
         <tr>
-            <td>Index</td>
+            <th>Index</th>
+            <th>Accuracy</th>
         </tr>
         @foreach (var epoch in _localTrainingState)
         {
             <tr>
                 <td>@epoch.EpochIndex</td>
+                <td>@epoch.Accuracy</td>
             </tr>
         }
     </table>
@@ -50,9 +52,13 @@
         UpdateLocalState();
     }
 
-    private void UpdateLocalState() => 
+    private void UpdateLocalState()
+    {
         _localTrainingState = State.TrainingStatus != null ?
-        State.TrainingStatus.ToList().OrderBy(x => x.EpochIndex) : new List<EpochResult>();
+            State.TrainingStatus.ToList().OrderBy(x => x.EpochIndex) : new List<EpochResult>();
+        StateHasChanged();
+    }
+       
 
     private void StartTimer(int interval = 5000)
     {

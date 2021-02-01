@@ -59,21 +59,21 @@ namespace AbyssalAI.Core.Neurons
         {
             get
             {
-                var averageArray = new float[_weightAmount]; //fix
+                var output = new float[_weightAmount]; //fix
 
-                for (var outer = 0; outer < _epochDataCount+1; outer++)
+                for (var outer = 0; outer < _epochDataCount; outer++)
                 for (var inner = 0; inner < _epochWeightProposals.GetLength(1); inner++)
                 {
-                    averageArray[inner] += _epochWeightProposals[outer, inner];
+                    output[inner] += _epochWeightProposals[outer, inner];
                 }
 
                 
-                for (var i = 0; i < averageArray.Length; i++)
+                for (var i = 0; i < output.Length; i++)
                 {
-                    averageArray[i] = averageArray[i] / _weightAmount;
+                    output[i] = output[i] / _weightAmount;
                 }
 
-                return averageArray;
+                return output;
             }
         }
 

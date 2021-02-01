@@ -1,1 +1,1 @@
-{"Title":"CurrencyClassifierLinux","DataUri":"/home/hackerbuddy/repos/Abyssal-AI/AbyssalAI/AbyssalAI.Intractive/templates/EURUSD=X.csv","LearningRate":0.001,"MaxEpochs":80000,"NetworkStructure":[4,4,4,1]}
+{"Title":"CurrencyClassifierLinux","DataUri":"/home/hackerbuddy/repos/Abyssal-AI/AbyssalAI/AbyssalAI.Intractive/templates/EURUSD=X.csv","LearningRate":0.001,"MaxEpochs":5000,"NetworkStructure":[4,4,4,1]}

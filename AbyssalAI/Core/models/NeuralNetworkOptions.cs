@@ -18,7 +18,7 @@ namespace AbyssalAI.Core.models
         /// <summary>
         /// Max epochs for the learning algorithm to go through; (Default: 10 000)
         /// </summary>
-        public int MaxEpochs { get; set; } = 10000;
+        public int MaxEpochs { get; set; } = 5000;
 
 
         public float? AccuracyGoal { get; set; } = 0.8F;

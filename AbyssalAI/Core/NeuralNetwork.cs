@@ -247,7 +247,7 @@ namespace AbyssalAI.Core
                 var previousLayerIndex = layer + 1;
                 
                 //I dont check if the activation is negative or not since my neural network does not currently support
-                //negative integers
+                //negative floating point numbers
                 
                 for (var previusLayerNeurons = 0;
                         previusLayerNeurons < Options.LayerStructure[layer + 1];
