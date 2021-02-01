@@ -15,7 +15,7 @@ namespace AbyssalAI.Core.helpers
         public float GenerateNewValue() //check that its not 0
         {
             var output = (float) _random.NextDouble();
-            var boolean = _random.Next(1, 2) != 1;
+            var boolean = _random.Next(1, 3) == 1;
             return boolean ? output + 1 : output;
         }
     }

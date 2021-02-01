@@ -6,6 +6,7 @@ using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading.Tasks;
 using AbyssalAI.Core.dataWindow;
+using AbyssalAI.Core.helpers;
 using AbyssalAI.Core.Interfaces;
 using AbyssalAI.Core.models;
 using AbyssalAI.Core.Neurons;
@@ -171,8 +172,8 @@ namespace AbyssalAI.Core
 
             _exampleActivations = new float[firstDimensionSize, secondDimensionSize];
 
-            if (data == null || !VerifyDataWindowValidity(data)) return;
-            for (var i = 0; i < data.OutputLayer.Length; i++)
+            if (data == null || !VerifyDataWindowValidity(data)) throw new InvalidDataWindowException(nameof(CreateActivationArray));
+            for (var i = 0; i < data.InputLayer.Length; i++)
             {
                 _exampleActivations[0, i] = data.InputLayer[i];
             }
