@@ -107,19 +107,19 @@ namespace AbyssalAI.Core
                     new ProposedNeuron(NeuronLayers[layer, neuron].Weights.Length, trainingData.Length);
                 
             // for window
-            for (var window = 0; window < trainingData.Length; window++)
+            foreach (var window in trainingData)
             {
                 //get activation
-                CreateActivationArray(trainingData[window]);
+                CreateActivationArray(window);
                 FillActivationArray();
 
                 var isSuccessful = (
                     Math.Max(_exampleActivations
-                        [_exampleActivations.GetLength(0), 0], trainingData[window]
+                        [_exampleActivations.GetLength(0)-1, 0], window
                         .OutputLayer[0])
                     -
                     Math.Min(_exampleActivations
-                        [_exampleActivations.GetLength(0), 0], trainingData[window]
+                        [_exampleActivations.GetLength(0)-1, 0], window
                         .OutputLayer[0])
                     < 0.5F);
                 if (isSuccessful)
@@ -127,7 +127,7 @@ namespace AbyssalAI.Core
 
                 //get cost
                 ResetExampleCostArray();
-                FillExampleCostArray(trainingData[window].OutputLayer);
+                FillExampleCostArray(window.OutputLayer);
 
                 //for each neuron
                 for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
@@ -145,7 +145,6 @@ namespace AbyssalAI.Core
                     _proposedNeurons[layer, neuron].AddBiasProposal(biasAdjustment);
                     _proposedNeurons[layer, neuron].AddWeightProposal(weightAdjustment);
                 }
-
             }
 
             //after for
@@ -167,10 +166,8 @@ namespace AbyssalAI.Core
         /// <returns>an array the same size as the neural network with pre-filled dimensions</returns>
         private void CreateActivationArray(IDataWindow data)
         {
-            var firstDimensionSize = Options.LayerStructure.Length-1;
-            var secondDimensionSize =
-                Options.LayerStructure.OrderBy(l => l)
-                    .First();
+            var firstDimensionSize = Options.LayerStructure.Length;
+            var secondDimensionSize = Options.MaxLayerDensity;
 
             _exampleActivations = new float[firstDimensionSize, secondDimensionSize];
 
@@ -192,8 +189,8 @@ namespace AbyssalAI.Core
         private void FillActivationArray() {
             //foreach layer after index 0
             //foreach neuron
-            for (var layer = 1; layer <= _exampleActivations.GetLength(0); layer++)
-            for (var neuron = 0; neuron <= _exampleActivations.GetLength(1); neuron++) {
+            for (var layer = 1; layer <= _exampleActivations.GetLength(0)-1; layer++)
+            for (var neuron = 0; neuron <= Options.LayerStructure[layer]-1; neuron++) {
                 _exampleActivations[layer, neuron] = 
                 NeuronLayers[layer, neuron].GetActivation(_exampleActivations); // get activation
             }
@@ -208,58 +205,90 @@ namespace AbyssalAI.Core
             _exampleCosts = new float[Options.LayerStructure.Length,Options.MaxLayerDensity];
         
 
+        // private void FillExampleCostArray(float[] expectedOutput)
+        // {
+        //     //for output layer
+        //     for (var neuron = 0; neuron < Options.LayerStructure[^1]; neuron++)
+        //     {
+        //         var outputLayerIndex = Options.LayerStructure.Length - 1;
+        //
+        //
+        //         //determine cost and set in array
+        //         _exampleCosts[Options.LayerStructure.Length-1, neuron] =
+        //         (float)Math.Pow(_exampleActivations[outputLayerIndex, neuron] - expectedOutput[neuron], 2);
+        //
+        //         //determine next layer cost 
+        //         Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight; //extract
+        //
+        //         var costSeries = new float[NeuronLayers[outputLayerIndex, neuron].Weights.Length];
+        //         for (var weight = 0; weight < costSeries.Length; weight++)
+        //             costSeries[weight] = 
+        //                 newSeries.Invoke(_exampleActivations[outputLayerIndex-1, weight], 
+        //                     NeuronLayers[outputLayerIndex, neuron].Weights[weight]);
+        //
+        //
+        //         //call RelayCostToNextLayer()
+        //         RelayCostToNextLayer(costSeries, 1);
+        //     }
+        // }
+
         private void FillExampleCostArray(float[] expectedOutput)
         {
-            //for output layer
-            for (var neuron = 0; neuron < Options.LayerStructure[^0]; neuron++)
+            for (var layer = Options.LayerStructure.Length-1; layer > 0; layer--) //not input layer
+            for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
             {
-                var outputLayerIndex = Options.LayerStructure.Length - 1;
-
-
-                //determine cost and set in array
-                _exampleCosts[Options.LayerStructure.Length-1, neuron] =
-                (float)Math.Pow(_exampleActivations[outputLayerIndex, neuron] - expectedOutput[neuron], 2);
-
-                //determine next layer cost 
-                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight; //extract
-
-                var costSeries = new float[NeuronLayers[outputLayerIndex, neuron].Weights.Length];
-                for (var weight = 0; weight < costSeries.Length; weight++)
-                    costSeries[weight] = 
-                        newSeries.Invoke(_exampleActivations[outputLayerIndex-1, weight], 
-                            NeuronLayers[outputLayerIndex, neuron].Weights[weight]);
-
-
-                //call RelayCostToNextLayer()
-                RelayCostToNextLayer(costSeries, 1);
-            }
-        }
-
-        private void RelayCostToNextLayer(float[] costSeries, int depth)
-        {
-            for (var neuron = 0; 0 < Options.LayerStructure[^depth]; neuron++)
-            {
-                var depthAsIndex = Options.LayerStructure[^depth] - depth; //TODO: check validity
-
-                //add new partial cost to ExampleCosts
-                _exampleCosts[Options.LayerStructure.Length - depth, neuron] += costSeries[neuron];
-
-                Func<float, float, float> newSeries = (activation, weight) => activation < 0 ? 0 : weight; //extract
-
-                //check depth
-                if (depth > Options.LayerStructure.Length - 1)
+                if (layer == Options.LayerStructure.Length-1)
+                {
+                    _exampleActivations[layer, neuron] = (float)Math.Pow(_exampleActivations[layer, neuron] - expectedOutput[neuron], 2);
                     continue;
+                }
 
-                var newCostSeries = new float[Options.LayerStructure[^(depth + 1)]]; //check for 0 index?
-                for (var series = 0; series < newCostSeries.Length; series++)
-                    newCostSeries[series] *= 
-                        newSeries.Invoke(_exampleActivations[depthAsIndex-1, series],
-                            NeuronLayers[depthAsIndex, neuron].Weights[series]);
-
-                //recursive call next layer
-                RelayCostToNextLayer(newCostSeries, depth++);
+                var totalCurrentNeuronCost = 0F;
+                var previousLayerIndex = layer + 1;
+                
+                //I dont check if the activation is negative or not since my neural network does not currently support
+                //negative integers
+                
+                for (var previusLayerNeurons = 0;
+                        previusLayerNeurons < Options.LayerStructure[layer + 1];
+                        previusLayerNeurons++)
+                    
+                    totalCurrentNeuronCost += _exampleCosts[previousLayerIndex, previusLayerNeurons] *
+                                              NeuronLayers[previousLayerIndex, previusLayerNeurons].Weights[neuron];
+                
+                _exampleCosts[layer, neuron] = totalCurrentNeuronCost;
             }
         }
+
+        // private void RelayCostToNextLayer(float[] costSeries, int depth)
+        // {
+        //     //return if invalid...
+        //     for (var neuron = 0; 0 < Options.LayerStructure[^depth]; neuron++)
+        //     {
+        //             var layerDepthAsIndex = Options.LayerStructure.Length - 1 - depth;
+        //
+        //             //add new partial cost to ExampleCosts
+        //             _exampleCosts[Options.LayerStructure.Length - depth, neuron] += costSeries[neuron];
+        //
+        //             Func<float, float, float> newCostSeriesFunction =
+        //                 (activation, weight) => activation < 0 ? 0 : weight; //extract
+        //
+        //             //check depth
+        //             if (depth > Options.LayerStructure.Length - 1)
+        //                 continue;
+        //
+        //             var newCostSeries =
+        //                 new float[Options.LayerStructure[^(depth + 1)]]; //check for 0 index? //TODO: pretty up code
+        //             for (var series = 0; series < newCostSeries.Length; series++)
+        //                 newCostSeries[series] *=
+        //                     newCostSeriesFunction.Invoke(_exampleActivations[layerDepthAsIndex - 1, series],
+        //                         NeuronLayers[layerDepthAsIndex, neuron].Weights[series]);
+        //
+        //             //recursive call next layer
+        //             depth++;
+        //             costSeries = newCostSeries;
+        //     }
+        // }
 
 
 
