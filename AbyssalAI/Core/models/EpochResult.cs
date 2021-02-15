@@ -9,6 +9,6 @@ namespace AbyssalAI.Core.models
     public class EpochResult
     {
         public int EpochIndex { get; set; }
-        public float? Accuracy { get; set; }
+        public float AverageOffset { get; set; }
     }
 }

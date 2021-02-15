@@ -52,17 +52,17 @@ namespace AbyssalAI.Interactive.models
             {
                 var window = new DataWindow();
                 var inputLayer = enumeratedData
-                    .Skip(windowSize*index)
+                    .Skip(windowSize * index)
                     .Take(windowSize).Select(x => x.Close)
                     .ToArray();
 
                 var outputLayer = enumeratedData
-                    .Skip(windowSize*index)
+                    .Skip(windowSize * index)
                     .Skip(windowSize).Take(1)
-                    .Select(x => x.Close)
+                    .Select(d => d.Close)
                     .Select(x => x > inputLayer[^1] ? 1.0F : 0.0F)
                     .ToArray();
-
+                
                 window.InputLayer = inputLayer;
                 window.OutputLayer = outputLayer;
                 output[index] = window;

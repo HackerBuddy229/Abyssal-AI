@@ -2,9 +2,6 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using AbyssalAI.Core.dataWindow;
 using AbyssalAI.Core.helpers;
 using AbyssalAI.Core.Interfaces;
@@ -30,7 +27,7 @@ namespace AbyssalAI.Core
             for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 output[layer, neuron] = 
-                    new FiringNeuron(new Coordinate(layer, neuron), Options.LayerStructure[layer-1]);
+                    new FiringNeuron(new Coordinate(layer, neuron), Options.LayerStructure[layer-1], new SigmoidActivationFunction());
 
             NeuronLayers = output;
             _proposedNeurons = new IProposedNeuron[Options.LayerStructure.Length, Options.MaxLayerDensity];
@@ -53,8 +50,6 @@ namespace AbyssalAI.Core
                 concurrentEpochCollection.Add(result);
 
                 //check if value is achived
-                if (Options.AccuracyGoal != null && result.Accuracy > Options.AccuracyGoal)
-                    break;
             }
 
             var trainingResult = new NetworkTrainingResult()
@@ -94,19 +89,18 @@ namespace AbyssalAI.Core
         }
 
         
-        private EpochResult Backpropagate(IDataWindow[] trainingData)
+        private EpochResult Backpropagate(IReadOnlyCollection<IDataWindow> trainingData)
         {
             var output = new EpochResult();
-            var totalAmountOfData = trainingData.Length;
-            var amountOfCorrect = 0;
-            
+            var successes = new List<bool>();
+            var costs = new List<float>();
             
             //create adjustment neurons 
             for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 _proposedNeurons[layer, neuron] =
-                    new ProposedNeuron(NeuronLayers[layer, neuron].Weights.Length, trainingData.Length);
-                
+                    new ProposedNeuron(NeuronLayers[layer, neuron].Weights.Length, trainingData.Count);
+            
             // for window
             foreach (var window in trainingData)
             {
@@ -114,32 +108,28 @@ namespace AbyssalAI.Core
                 CreateActivationArray(window);
                 FillActivationArray();
 
-                var isSuccessful = (
-                    Math.Max(_exampleActivations
-                        [_exampleActivations.GetLength(0)-1, 0], window
-                        .OutputLayer[0])
-                    -
-                    Math.Min(_exampleActivations
-                        [_exampleActivations.GetLength(0)-1, 0], window
-                        .OutputLayer[0])
-                    < 0.5F);
-                if (isSuccessful)
-                    amountOfCorrect++;
-
+                //calculate offset
+                var offset = _exampleActivations[_exampleActivations.GetLength(0) - 1, 0] - window.OutputLayer[0];
+                offset *= offset < 0 ? -1 : 1; //if less than 0 times with -1
+                successes.Add(offset < 0.5F);
+                
                 //get cost
                 ResetExampleCostArray();
                 FillExampleCostArray(window.OutputLayer);
+                costs.Add(_exampleCosts[Options.LayerStructure.Length-1, 0]);
 
                 //for each neuron
                 for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
                 for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 {
                     //get adjustments
+                    var neuronCost = _exampleCosts[layer, neuron];
+                    
                     var biasAdjustment = NeuronLayers[layer, neuron]
-                        .GetBiasAdjust(Options.LearningRate, _exampleActivations, _exampleCosts[layer, neuron]);
+                        .GetBiasAdjust(_exampleActivations, neuronCost);
 
                     var weightAdjustment = NeuronLayers[layer, neuron]
-                        .GetWeightAdjust(Options.LearningRate, _exampleActivations, _exampleCosts[layer, neuron]);
+                        .GetWeightAdjust(_exampleActivations, neuronCost);
 
                     //set adjustment
 
@@ -153,9 +143,14 @@ namespace AbyssalAI.Core
 
             for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
-                NeuronLayers[layer, neuron].Adjust(_proposedNeurons[layer, neuron]);
+                NeuronLayers[layer, neuron].Adjust(_proposedNeurons[layer, neuron], Options.LearningRate);
 
-            output.Accuracy = amountOfCorrect / totalAmountOfData;
+            var accuracy = (float)successes.Count(x => x) / trainingData.Count;
+
+            //output.AverageOffset = accuracy;
+            //output.AverageOffset = _exampleCosts[Options.LayerStructure.Length - 1, 0];
+            var totalCost = costs.Sum();
+            output.AverageOffset = totalCost / costs.Count;
             return output;
         }
 
@@ -172,7 +167,9 @@ namespace AbyssalAI.Core
 
             _exampleActivations = new float[firstDimensionSize, secondDimensionSize];
 
-            if (data == null || !VerifyDataWindowValidity(data)) throw new InvalidDataWindowException(nameof(CreateActivationArray));
+            if (data == null || !VerifyDataWindowValidity(data)) 
+                throw new InvalidDataWindowException(nameof(CreateActivationArray));
+            
             for (var i = 0; i < data.InputLayer.Length; i++)
             {
                 _exampleActivations[0, i] = data.InputLayer[i];
@@ -180,7 +177,6 @@ namespace AbyssalAI.Core
             //create array by dimensions
             //if data != null 
             //  fill first layer
-
         }
 
 
@@ -190,8 +186,8 @@ namespace AbyssalAI.Core
         private void FillActivationArray() {
             //foreach layer after index 0
             //foreach neuron
-            for (var layer = 1; layer <= _exampleActivations.GetLength(0)-1; layer++)
-            for (var neuron = 0; neuron <= Options.LayerStructure[layer]-1; neuron++) {
+            for (var layer = 1; layer < _exampleActivations.GetLength(0); layer++)
+            for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++) {
                 _exampleActivations[layer, neuron] = 
                 NeuronLayers[layer, neuron].GetActivation(_exampleActivations); // get activation
             }
@@ -233,29 +229,35 @@ namespace AbyssalAI.Core
         //     }
         // }
 
-        private void FillExampleCostArray(float[] expectedOutput)
+        private void FillExampleCostArray(IReadOnlyList<float> expectedOutput)
         {
-            for (var layer = Options.LayerStructure.Length-1; layer > 0; layer--) //not input layer
+            var outputLayerIndex = Options.LayerStructure.Length-1;
+            
+            for (var layer = outputLayerIndex; layer > 0; layer--) //not input layer
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
             {
-                if (layer == Options.LayerStructure.Length-1)
+                
+                if (layer == outputLayerIndex)
                 {
-                    _exampleActivations[layer, neuron] = (float)Math.Pow(_exampleActivations[layer, neuron] - expectedOutput[neuron], 2);
+                    //var doubleCost = Math.Pow(_exampleActivations[outputLayerIndex, neuron] - expectedOutput[neuron], 2);
+                    var doubleCost = (expectedOutput[neuron] - _exampleActivations[outputLayerIndex, neuron]) * 2;
+                    var cost = (float) Math.Round(doubleCost, 9, MidpointRounding.AwayFromZero);
+                    _exampleCosts[outputLayerIndex, neuron] = cost; 
                     continue;
                 }
 
                 var totalCurrentNeuronCost = 0F;
                 var previousLayerIndex = layer + 1;
                 
-                //I dont check if the activation is negative or not since my neural network does not currently support
-                //negative floating point numbers
+                
                 
                 for (var previusLayerNeurons = 0;
-                        previusLayerNeurons < Options.LayerStructure[layer + 1];
+                        previusLayerNeurons < Options.LayerStructure[previousLayerIndex];
                         previusLayerNeurons++)
                     
                     totalCurrentNeuronCost += _exampleCosts[previousLayerIndex, previusLayerNeurons] *
-                                              NeuronLayers[previousLayerIndex, previusLayerNeurons].Weights[neuron];
+                                              Options.ActivationFunction.GetDerivedValue(_exampleActivations[previousLayerIndex, previusLayerNeurons]) *
+                                              NeuronLayers[previousLayerIndex, previusLayerNeurons].Weights[neuron]; 
                 
                 _exampleCosts[layer, neuron] = totalCurrentNeuronCost;
             }

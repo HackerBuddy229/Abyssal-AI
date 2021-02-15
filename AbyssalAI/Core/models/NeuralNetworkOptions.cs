@@ -15,6 +15,8 @@ namespace AbyssalAI.Core.models
         /// </summary>
         public float LearningRate { get; set; } = 0.001F; //TODO: set proper default learningRate
 
+        public IActivationFunction ActivationFunction { get; set; } = new SigmoidActivationFunction();
+
         /// <summary>
         /// Max epochs for the learning algorithm to go through; (Default: 10 000)
         /// </summary>

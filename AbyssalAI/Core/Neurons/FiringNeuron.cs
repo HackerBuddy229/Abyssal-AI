@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using AbyssalAI.Core.helpers;
 using AbyssalAI.Core.Interfaces;
@@ -10,20 +11,24 @@ namespace AbyssalAI.Core.Neurons
     {
         public float GetActivation(float[,] activationTable);
         
-        public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost);
+        public float GetBiasAdjust(float[,] activationArray, float cost);
 
-        public float[] GetWeightAdjust(float learningRate, float[,] activationArray, float cost);
+        public float[] GetWeightAdjust(float[,] activationArray, float cost);
 
-        public void Adjust(IProposedNeuron prop);
+        public void Adjust(IProposedNeuron prop, float learningRate);
     }
     
     public class FiringNeuron : PassiveNeuron, IFiringNeuron
     {
+        private readonly IActivationFunction _activationFunction;
+
         public FiringNeuron(Coordinate location, 
-            int amountOfWeights, 
+            int amountOfWeights,
+            IActivationFunction activationFunction,
             IInitialiser<float> weightInitialiser = null,
             IInitialiser<float> biasInitialiser = null)
         {
+            _activationFunction = activationFunction;
             NeuronLocation = location;
 
             InitialiseWeights(weightInitialiser ?? new Initialiser(), amountOfWeights);
@@ -37,54 +42,69 @@ namespace AbyssalAI.Core.Neurons
         /// <returns>the float value of the neuron activation</returns>
         public float GetActivation(float[,] activationTable)
         {
-            float z = Weights.Select((t, neuron) => activationTable[NeuronLocation.Layer - 1, neuron] * t).Sum();
+            var z = 0F;
+            
+            // ReSharper disable once LoopCanBeConvertedToQuery
+            for (var neuron = 0; neuron < Weights.Length; neuron++)
+                z += activationTable[NeuronLocation.Layer - 1, neuron] * Weights[neuron];
+            
             //z += foreach weight L-1
 
             z += Bias;
-            var activation = ActivationMethod(z); //activation = p.activationMethod(z)
+            var activation = _activationFunction.GetValue(z); //activation = p.activationMethod(z)
 
             return activation;
         }
         
         
-        public float GetBiasAdjust(float learningRate, float[,] activationArray, float cost)
+        public float GetBiasAdjust(float[,] activationArray, float cost)
         {
             var activation = activationArray[NeuronLocation.Layer, NeuronLocation.Neuron];
-            var derivative = BiasDerivative.Invoke(cost, activation);
-            var adjustment = derivative * learningRate;
-
-            return adjustment;
+            var derivative = cost*_activationFunction.GetDerivedValue(activation);
+            
+            
+            return derivative;
         }
 
         
-        public float[] GetWeightAdjust(float learningRate, float[,] activationArray, float cost)
+        public float[] GetWeightAdjust(float[,] activationArray, float cost)
         {
+            var currentActivation = activationArray[NeuronLocation.Layer, NeuronLocation.Neuron];
+            
             //activations
-            var activations = new float[Weights.Length];
-            for (var weight = 0; weight < activations.Length; weight++)
-                activations[weight] = activationArray[NeuronLocation.Layer - 1, weight];
+            var preLayerActivation = new List<float>(Weights.Length);
+            for (var weight = 0; weight < Weights.Length; weight++)
+            {
+                var activation = activationArray[NeuronLocation.Layer - 1, weight];
+                preLayerActivation.Add(activation);
+            }
 
             //derivation
-            var derivation = new float[activations.Length];
-            for (var derivative = 0; derivative < derivation.Length; derivative++)
-                derivation[derivative] =
-                    WeightDerivative.Invoke(cost,
-                        activationArray[NeuronLocation.Layer, NeuronLocation.Neuron],
-                        activations[derivative]);
+            var derivation = new List<float>(Weights.Length);
+            for (var derivative = 0; derivative < Weights.Length; derivative++)
+            {
+                var weightCost = cost * 
+                                 _activationFunction.GetDerivedValue(currentActivation) *
+                                 preLayerActivation[derivative];
+                
+                derivation.Add(weightCost); 
+            }
 
-            //adjustment
-            var adjustment = new float[derivation.Length];
-            for (var adjustIndex = 0; adjustIndex < adjustment.Length; adjustIndex++)
-                adjustment[adjustIndex] = derivation[adjustIndex] * learningRate;
+            
+                    
 
-            return adjustment;
+            
+
+            
+                
+            return derivation.ToArray();
         }
 
-        public void Adjust(IProposedNeuron prop)
+        public void Adjust(IProposedNeuron prop, float learningRate)
         {
-            Bias += prop.AvgBiasProposal;
+            Bias += prop.AvgBiasProposal * learningRate;
             for (var weight = 0; weight < Weights.Length; weight++)
-                Weights[weight] += prop.AvgWeightProposal[weight];
+                Weights[weight] += prop.AvgWeightProposal[weight] * learningRate;
         }
 
         private void InitialiseWeights(IInitialiser<float> initialiser, int amountOfWeights)

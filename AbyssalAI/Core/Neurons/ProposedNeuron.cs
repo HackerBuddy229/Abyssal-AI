@@ -35,8 +35,8 @@ namespace AbyssalAI.Core.Neurons
 
         public void AddBiasProposal(float prop)
         {
-            var index = _epochBiasProposals.Select((value, innerIndex) => value == 0 ? innerIndex : int.MaxValue).First();
-            _epochBiasProposals[index] = prop;
+            _epochBiasProposals[_epochBiasProposalIndex] = prop;
+            _epochBiasProposalIndex++;
         }
 
         public void AddWeightProposal(float[] prop)
@@ -48,12 +48,20 @@ namespace AbyssalAI.Core.Neurons
 
                 for (var props = 0; props < prop.Length; props++)
                     _epochWeightProposals[index, props] = prop[props];
+                
                 break;
             }
         }
 
 
-        public float AvgBiasProposal => _epochBiasProposals.Average();
+        public float AvgBiasProposal
+        {
+            get
+            {
+                var average = _epochBiasProposals.Average();
+                return average;
+            }
+        }
 
         public float[] AvgWeightProposal
         {
@@ -80,6 +88,7 @@ namespace AbyssalAI.Core.Neurons
         
 
         private readonly float[] _epochBiasProposals;
+        private int _epochBiasProposalIndex = 0;
 
         private readonly float[,] _epochWeightProposals;
     }
