@@ -5,7 +5,7 @@ namespace AbyssalAI.Core.Neurons
 {
     public abstract class PassiveNeuron
     {
-        protected Coordinate NeuronLocation { get; set; }
+        public Coordinate NeuronLocation { get; set; }
 
         /// <summary>
         /// The activation method for the neuron; (Default to a leaky RElu)

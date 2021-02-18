@@ -109,14 +109,14 @@ namespace AbyssalAI.Core
                 FillActivationArray();
 
                 //calculate offset
-                var offset = _exampleActivations[_exampleActivations.GetLength(0) - 1, 0] - window.OutputLayer[0];
-                offset *= offset < 0 ? -1 : 1; //if less than 0 times with -1
-                successes.Add(offset < 0.5F);
+                // var offset = _exampleActivations[_exampleActivations.GetLength(0) - 1, 0] - window.OutputLayer[0];
+                // offset *= offset < 0 ? -1 : 1; //if less than 0 times with -1
+                // successes.Add(offset < 0.5F);
                 
                 //get cost
                 ResetExampleCostArray();
                 FillExampleCostArray(window.OutputLayer);
-                costs.Add(_exampleCosts[Options.LayerStructure.Length-1, 0]);
+                costs.Add(_exampleCosts[Options.LayerStructure.Length-1, 0] + _exampleCosts[Options.LayerStructure.Length-1, 1]);
 
                 //for each neuron
                 for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
@@ -186,11 +186,19 @@ namespace AbyssalAI.Core
         private void FillActivationArray() {
             //foreach layer after index 0
             //foreach neuron
-            for (var layer = 1; layer < _exampleActivations.GetLength(0); layer++)
+            for (var layer = 1; layer < _exampleActivations.GetLength(0)-1; layer++)
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++) {
                 _exampleActivations[layer, neuron] = 
                 NeuronLayers[layer, neuron].GetActivation(_exampleActivations); // get activation
             }
+
+            var inputs = new float[Options.LayerStructure[^1]];
+            for (var neuron = 0; neuron < Options.LayerStructure[^1]; neuron++)
+                inputs[neuron] = NeuronLayers[Options.LayerStructure.Length - 1, neuron].GetInputValue(_exampleActivations);
+
+            var activations = Options.OutputActivationFunction.GetValue(inputs);
+            for (var neuron = 0; neuron < Options.LayerStructure[^1]; neuron++)
+                _exampleActivations[Options.LayerStructure.Length - 1, neuron] = activations[neuron];
         }
 
         private float[,] _exampleCosts;
@@ -239,25 +247,48 @@ namespace AbyssalAI.Core
                 
                 if (layer == outputLayerIndex)
                 {
-                    //var doubleCost = Math.Pow(_exampleActivations[outputLayerIndex, neuron] - expectedOutput[neuron], 2);
-                    var doubleCost = (expectedOutput[neuron] - _exampleActivations[outputLayerIndex, neuron]) * 2;
-                    var cost = (float) Math.Round(doubleCost, 9, MidpointRounding.AwayFromZero);
+                    var cost = 
+                        Options.CostFunction.GetCost(_exampleActivations[layer, neuron], expectedOutput[neuron]);
                     _exampleCosts[outputLayerIndex, neuron] = cost; 
                     continue;
                 }
 
                 var totalCurrentNeuronCost = 0F;
                 var previousLayerIndex = layer + 1;
-                
-                
-                
-                for (var previusLayerNeurons = 0;
-                        previusLayerNeurons < Options.LayerStructure[previousLayerIndex];
-                        previusLayerNeurons++)
+
+
+
+                for (var previousLayerNeurons = 0;
+                    previousLayerNeurons < Options.LayerStructure[previousLayerIndex];
+                    previousLayerNeurons++)
+                {
+                    //initialize the derivative of the activation function
+                    var derivativeOfActivation = 0F;
                     
-                    totalCurrentNeuronCost += _exampleCosts[previousLayerIndex, previusLayerNeurons] *
-                                              Options.ActivationFunction.GetDerivedValue(_exampleActivations[previousLayerIndex, previusLayerNeurons]) *
-                                              NeuronLayers[previousLayerIndex, previusLayerNeurons].Weights[neuron]; 
+                    //get the activation of the L + 1 Neuron 
+                    var previousNeuronActivation = _exampleActivations[previousLayerIndex, previousLayerNeurons];
+                    
+                    //get the Activation of the neuron that is expected to be 1
+                    var indexOfExpectedTrue = expectedOutput.ToList().FindIndex(x => x.Equals(1F));
+                    var activationOfExpectedTrue = _exampleActivations[previousLayerIndex, indexOfExpectedTrue];
+                    
+                    //Returns the derivative of softmax if final layer else ReLu
+                    if (previousLayerIndex == outputLayerIndex)
+                    {
+                        derivativeOfActivation =
+                            Options.OutputActivationFunction.GetDerivedValue(previousNeuronActivation,activationOfExpectedTrue);
+                    }
+                    else
+                    {
+                        Options.ActivationFunction.GetDerivedValue(previousNeuronActivation);
+                    }
+                    
+                    totalCurrentNeuronCost += _exampleCosts[previousLayerIndex, previousLayerNeurons] *
+                                              derivativeOfActivation *
+                                              NeuronLayers[previousLayerIndex, previousLayerNeurons].Weights[neuron]; 
+                }
+                    
+                    
                 
                 _exampleCosts[layer, neuron] = totalCurrentNeuronCost;
             }

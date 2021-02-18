@@ -10,6 +10,7 @@ namespace AbyssalAI.Core.Neurons
     public interface IFiringNeuron
     {
         public float GetActivation(float[,] activationTable);
+        public float GetInputValue(float[,] activationTable);
         
         public float GetBiasAdjust(float[,] activationArray, float cost);
 
@@ -42,6 +43,14 @@ namespace AbyssalAI.Core.Neurons
         /// <returns>the float value of the neuron activation</returns>
         public float GetActivation(float[,] activationTable)
         {
+            var z = GetInputValue(activationTable);
+            var activation = _activationFunction.GetValue(z); //activation = p.activationMethod(z)
+
+            return activation;
+        }
+
+        public float GetInputValue(float[,] activationTable)
+        {
             var z = 0F;
             
             // ReSharper disable once LoopCanBeConvertedToQuery
@@ -51,12 +60,10 @@ namespace AbyssalAI.Core.Neurons
             //z += foreach weight L-1
 
             z += Bias;
-            var activation = _activationFunction.GetValue(z); //activation = p.activationMethod(z)
-
-            return activation;
+            return z;
         }
-        
-        
+
+
         public float GetBiasAdjust(float[,] activationArray, float cost)
         {
             var activation = activationArray[NeuronLocation.Layer, NeuronLocation.Neuron];
@@ -102,9 +109,9 @@ namespace AbyssalAI.Core.Neurons
 
         public void Adjust(IProposedNeuron prop, float learningRate)
         {
-            Bias += prop.AvgBiasProposal * learningRate;
+            Bias *= prop.AvgBiasProposal * learningRate;
             for (var weight = 0; weight < Weights.Length; weight++)
-                Weights[weight] += prop.AvgWeightProposal[weight] * learningRate;
+                Weights[weight] *= prop.AvgWeightProposal[weight] * learningRate;
         }
 
         private void InitialiseWeights(IInitialiser<float> initialiser, int amountOfWeights)

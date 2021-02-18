@@ -62,6 +62,8 @@ namespace AbyssalAI.Interactive.models
                     .Select(d => d.Close)
                     .Select(x => x > inputLayer[^1] ? 1.0F : 0.0F)
                     .ToArray();
+
+                outputLayer = new[] {outputLayer[0], outputLayer[0] == 0F ? 1F : 0F};
                 
                 window.InputLayer = inputLayer;
                 window.OutputLayer = outputLayer;
