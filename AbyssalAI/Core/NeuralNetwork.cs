@@ -263,7 +263,7 @@ namespace AbyssalAI.Core
                     previousLayerNeurons++)
                 {
                     //initialize the derivative of the activation function
-                    var derivativeOfActivation = 0F;
+                    var derivativeOfActivation = 1F;
                     
                     //get the activation of the L + 1 Neuron 
                     var previousNeuronActivation = _exampleActivations[previousLayerIndex, previousLayerNeurons];
@@ -280,7 +280,7 @@ namespace AbyssalAI.Core
                     }
                     else
                     {
-                        Options.ActivationFunction.GetDerivedValue(previousNeuronActivation);
+                        derivativeOfActivation = Options.ActivationFunction.GetDerivedValue(previousNeuronActivation);
                     }
                     
                     totalCurrentNeuronCost += _exampleCosts[previousLayerIndex, previousLayerNeurons] *
