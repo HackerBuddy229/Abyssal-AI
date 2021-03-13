@@ -80,7 +80,7 @@
         State.NeuralNetwork = new NeuralNetwork(options);
 
         State.TrainingStatus = new ConcurrentBag<EpochResult>();
-        State.NeuralNetwork.Train(State.SelectedTemplate.GetDataWindow().TrainingData, out State._trainingStatus);
+        Task.Run(() => State.NeuralNetwork.Train(State.SelectedTemplate.GetDataWindow().TrainingData, out State._trainingStatus));
 
         StartTimer();
     }
