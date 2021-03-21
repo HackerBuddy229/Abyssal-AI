@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using AbyssalAI.Core.dataWindow;
 using AbyssalAI.Core.helpers;
@@ -40,12 +41,27 @@ namespace AbyssalAI.Core
         public NetworkTrainingResult Train(IDataWindow[] trainingData, out ConcurrentBag<EpochResult> concurrentEpochCollection)
         {
             concurrentEpochCollection = new ConcurrentBag<EpochResult>();
-
+            var timer = new Stopwatch();
+            var longestEpoch = TimeSpan.Zero;
+            var shortestEpoch = TimeSpan.Zero;
+            var times = new List<TimeSpan>();
+            
             for (var epoch = 0; epoch < Options.MaxEpochs; epoch++)
             {
+                //timer
+                timer.Reset();
+                timer.Start();
+                
                 //train with data
                 var result = Backpropagate(trainingData);
                 result.EpochIndex = epoch;
+                
+                //timer end
+                timer.Stop();
+                var time = timer.Elapsed;
+                times.Add(time);
+                longestEpoch = longestEpoch == TimeSpan.Zero || time > longestEpoch ? time : longestEpoch;
+                shortestEpoch = shortestEpoch == TimeSpan.Zero || time < shortestEpoch ? time : shortestEpoch;
 
                 concurrentEpochCollection.Add(result);
 
@@ -56,6 +72,9 @@ namespace AbyssalAI.Core
             {
                 EpochResults = concurrentEpochCollection.OrderBy(x => x.EpochIndex).ToList()
             };
+            
+            //get avg time
+            var avgTime = times.Select(x => (long)x.Milliseconds).Sum() / times.Count;
 
             return trainingResult;
         }
