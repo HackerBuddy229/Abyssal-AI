@@ -141,6 +141,12 @@ namespace AbyssalAI.Core
                 for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
                 for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 {
+                    if (float.IsNaN(_exampleCosts[layer, neuron]))
+                    {
+                        Console.WriteLine($"{layer}, {neuron}");
+                    }
+                    
+                    
                     //get adjustments
                     var neuronCost = _exampleCosts[layer, neuron];
                     
@@ -217,7 +223,12 @@ namespace AbyssalAI.Core
 
             var activations = Options.OutputActivationFunction.GetValue(inputs);
             for (var neuron = 0; neuron < Options.LayerStructure[^1]; neuron++)
+            {
+                if (activations[neuron] == 0F) //TODO: Remove
+                    throw new Exception();
                 _exampleActivations[Options.LayerStructure.Length - 1, neuron] = activations[neuron];
+            }
+                
         }
 
         private float[,] _exampleCosts;
@@ -267,7 +278,7 @@ namespace AbyssalAI.Core
                 if (layer == outputLayerIndex)
                 {
                     var cost = 
-                        Options.CostFunction.GetCost(_exampleActivations[layer, neuron], expectedOutput[neuron]);
+                        Options.CostFunction.GetDerivedValue(_exampleActivations[layer, neuron], expectedOutput[neuron]);
                     _exampleCosts[outputLayerIndex, neuron] = cost; 
                     continue;
                 }

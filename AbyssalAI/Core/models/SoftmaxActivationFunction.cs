@@ -7,14 +7,18 @@ namespace AbyssalAI.Core.models
 
     public class SoftmaxActivationFunction : IOutputActivationFunction
     {
-        public float[] GetValue(float[] input)
+        public float[] GetValue(float[] input) //TODO: You done fucked up Rasmus!!! FIX IT NOW!!!
         {
-            var sum = 0d;
+            var sum = 0D;
             input.ToList().ForEach(x => sum += Math.Pow(Math.E, x));
 
-            return input.Select(value => value / sum)
-                .Select(doubleActivation => (float) Math.Round(doubleActivation, 10, MidpointRounding.AwayFromZero))
+            var output =  input.Select(value => Math.Pow(Math.E, value) / sum)
+                .Select(doubleActivation => (float)doubleActivation)
                 .ToArray();
+            
+            if (output[0] == 0F)
+                throw new Exception();
+            return output;
         }
 
         public float GetDerivedValue(float activation, float expectedActivation) //TODO: probably right

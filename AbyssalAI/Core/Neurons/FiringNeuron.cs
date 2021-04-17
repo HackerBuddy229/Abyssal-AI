@@ -66,6 +66,9 @@ namespace AbyssalAI.Core.Neurons
 
         public float GetBiasAdjust(float[,] activationArray, float cost)
         {
+            if (float.IsNaN(cost) || float.IsNaN(activationArray[1, 0]))
+                throw new Exception();
+            
             var activation = activationArray[NeuronLocation.Layer, NeuronLocation.Neuron];
             var derivative = cost*_activationFunction.GetDerivedValue(activation);
             
@@ -110,8 +113,16 @@ namespace AbyssalAI.Core.Neurons
         public void Adjust(IProposedNeuron prop, float learningRate)
         {
             Bias *= prop.AvgBiasProposal * learningRate;
+            
+            if (prop.AvgBiasProposal.Equals(10F)) //TODO: Remove
+                Console.WriteLine($"{NeuronLocation.Layer}, {NeuronLocation.Neuron}");
+            
             for (var weight = 0; weight < Weights.Length; weight++)
+            {
                 Weights[weight] *= prop.AvgWeightProposal[weight] * learningRate;
+                if (float.IsNaN(Weights[weight])) //TODO: REMOVE
+                    Console.WriteLine($"{NeuronLocation.Layer}, {NeuronLocation.Neuron}");
+            }
         }
 
         private void InitialiseWeights(IInitialiser<float> initialiser, int amountOfWeights)
