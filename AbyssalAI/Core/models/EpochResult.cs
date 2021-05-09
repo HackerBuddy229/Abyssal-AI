@@ -10,5 +10,8 @@ namespace AbyssalAI.Core.models
     {
         public int EpochIndex { get; set; }
         public float AverageOffset { get; set; }
+        public NeuronPairing AverageCost { get; set; }
+        public NeuronPairing AverageOutputLayerActivation { get; set; }
+        public float Accuracy { get; set; }
     }
 }

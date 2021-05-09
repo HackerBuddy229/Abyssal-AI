@@ -114,14 +114,10 @@ namespace AbyssalAI.Core.Neurons
         {
             Bias *= prop.AvgBiasProposal * learningRate;
             
-            if (prop.AvgBiasProposal.Equals(10F)) //TODO: Remove
-                Console.WriteLine($"{NeuronLocation.Layer}, {NeuronLocation.Neuron}");
             
             for (var weight = 0; weight < Weights.Length; weight++)
             {
                 Weights[weight] *= prop.AvgWeightProposal[weight] * learningRate;
-                if (float.IsNaN(Weights[weight])) //TODO: REMOVE
-                    Console.WriteLine($"{NeuronLocation.Layer}, {NeuronLocation.Neuron}");
             }
         }
 

@@ -1,9 +1,10 @@
 ﻿@page "/training"
 @using AbyssalAI.Core.models
-@using System.Timers
 @using System.Data
 @using AbyssalAI.Core
 @using System.Collections.Concurrent
+@using System.Threading
+@using Timer = System.Timers.Timer
 @inject ApplicationState State
 <h1>Training Control</h1>
 
@@ -25,13 +26,23 @@
     <table class="table">
         <tr>
             <th>Index</th>
+            <th>AverageOffset</th>
             <th>Accuracy</th>
+            <th>AverageCost 1</th>
+            <th>AverageCost 2</th>
+            <th>AverageAct 1</th>
+            <th>AverageAct 2</th>
         </tr>
         @foreach (var epoch in _localTrainingState)
         {
             <tr>
                 <td>@epoch.EpochIndex</td>
                 <td>@epoch.AverageOffset</td>
+                <td>@epoch.Accuracy</td>
+                <td>@epoch.AverageCost.N1</td>
+                <td>@epoch.AverageCost.N2</td>
+                <td>@epoch.AverageOutputLayerActivation.N1</td>
+                <td>@epoch.AverageOutputLayerActivation.N2</td>
             </tr>
         }
     </table>
@@ -73,14 +84,15 @@
         {
             LayerStructure = State.SelectedTemplate.NetworkStructure,
             // LearningRate = State.SelectedTemplate.LearningRate,
-            LearningRate = 0.1F,
+            LearningRate = State.SelectedTemplate.LearningRate,
             MaxEpochs = State.SelectedTemplate.MaxEpochs
         };
 
         State.NeuralNetwork = new NeuralNetwork(options);
 
         State.TrainingStatus = new ConcurrentBag<EpochResult>();
-        Task.Run(() => State.NeuralNetwork.Train(State.SelectedTemplate.GetDataWindow().TrainingData, out State._trainingStatus));
+        var thread = new Thread(() => State.NeuralNetwork.Train(State.SelectedTemplate.GetDataWindow().TrainingData, out State._trainingStatus));
+        thread.Start();
 
         StartTimer();
     }

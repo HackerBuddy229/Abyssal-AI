@@ -35,8 +35,6 @@ namespace AbyssalAI.Core.Neurons
 
         public void AddBiasProposal(float prop)
         {
-            if (float.IsNaN(prop)) //TODO: Remove
-                throw new Exception();
             _epochBiasProposals[_epochBiasProposalIndex] = prop;
             _epochBiasProposalIndex++;
         }
@@ -61,8 +59,6 @@ namespace AbyssalAI.Core.Neurons
             get
             {
                 var average = _epochBiasProposals.Average();
-                if (float.IsNaN(average)) //TODO: Remove
-                    Console.WriteLine("Error");
                 return average;
             }
         }
@@ -71,7 +67,7 @@ namespace AbyssalAI.Core.Neurons
         {
             get
             {
-                var output = new float[_weightAmount]; //fix
+                var output = new float[_weightAmount];
 
                 for (var outer = 0; outer < _epochDataCount; outer++)
                 for (var inner = 0; inner < _epochWeightProposals.GetLength(1); inner++)
@@ -83,8 +79,6 @@ namespace AbyssalAI.Core.Neurons
                 for (var i = 0; i < output.Length; i++)
                 {
                     output[i] = output[i] / _weightAmount;
-                    if (float.IsNaN(output[i])) //TODO: Remove
-                        Console.WriteLine("Error");
                 }
                 
                 

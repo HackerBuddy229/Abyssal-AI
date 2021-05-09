@@ -41,27 +41,16 @@ namespace AbyssalAI.Core
         public NetworkTrainingResult Train(IDataWindow[] trainingData, out ConcurrentBag<EpochResult> concurrentEpochCollection)
         {
             concurrentEpochCollection = new ConcurrentBag<EpochResult>();
-            var timer = new Stopwatch();
-            var longestEpoch = TimeSpan.Zero;
-            var shortestEpoch = TimeSpan.Zero;
-            var times = new List<TimeSpan>();
+
+
             
             for (var epoch = 0; epoch < Options.MaxEpochs; epoch++)
             {
-                //timer
-                timer.Reset();
-                timer.Start();
+
                 
                 //train with data
                 var result = Backpropagate(trainingData);
                 result.EpochIndex = epoch;
-                
-                //timer end
-                timer.Stop();
-                var time = timer.Elapsed;
-                times.Add(time);
-                longestEpoch = longestEpoch == TimeSpan.Zero || time > longestEpoch ? time : longestEpoch;
-                shortestEpoch = shortestEpoch == TimeSpan.Zero || time < shortestEpoch ? time : shortestEpoch;
 
                 concurrentEpochCollection.Add(result);
 
@@ -74,7 +63,6 @@ namespace AbyssalAI.Core
             };
             
             //get avg time
-            var avgTime = times.Select(x => (long)x.Milliseconds).Sum() / times.Count;
 
             return trainingResult;
         }
@@ -111,8 +99,18 @@ namespace AbyssalAI.Core
         private EpochResult Backpropagate(IReadOnlyCollection<IDataWindow> trainingData)
         {
             var output = new EpochResult();
-            var successes = new List<bool>();
+            var correctClassifications = 0;
+            
             var costs = new List<float>();
+            
+            var n1Costs = new List<float>();
+            var n2Costs = new List<float>();
+
+            var n1S = new List<float>();
+            var n2S = new List<float>();
+            
+            
+            
             
             //create adjustment neurons 
             for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
@@ -127,6 +125,14 @@ namespace AbyssalAI.Core
                 CreateActivationArray(window);
                 FillActivationArray();
 
+                var n1 = _exampleActivations[Options.LayerStructure.Length - 1, 0];
+                var diff = n1 - window.OutputLayer[0];
+                if (Math.Abs(diff) > 0.5F)
+                    correctClassifications++;
+                
+                n1S.Add(_exampleActivations[Options.LayerStructure.Length - 1, 0]);
+                n2S.Add(_exampleActivations[Options.LayerStructure.Length - 1, 1]);
+
                 //calculate offset
                 // var offset = _exampleActivations[_exampleActivations.GetLength(0) - 1, 0] - window.OutputLayer[0];
                 // offset *= offset < 0 ? -1 : 1; //if less than 0 times with -1
@@ -136,17 +142,19 @@ namespace AbyssalAI.Core
                 ResetExampleCostArray();
                 FillExampleCostArray(window.OutputLayer);
                 costs.Add(_exampleCosts[Options.LayerStructure.Length-1, 0] + _exampleCosts[Options.LayerStructure.Length-1, 1]);
-
+                
+                n1Costs.Add(_exampleCosts[Options.LayerStructure.Length-1, 0]);
+                n2Costs.Add(_exampleCosts[Options.LayerStructure.Length-1, 1]);
+                
+                // n1S.Add(_exampleActivations[Options.LayerStructure.Length-1, 0]);
+                // n2S.Add(_exampleActivations[Options.LayerStructure.Length-1, 1]);
+                
                 //for each neuron
                 for (var layer = 1; layer < Options.LayerStructure.Length; layer++)
                 for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 {
-                    if (float.IsNaN(_exampleCosts[layer, neuron]))
-                    {
-                        Console.WriteLine($"{layer}, {neuron}");
-                    }
-                    
-                    
+
+
                     //get adjustments
                     var neuronCost = _exampleCosts[layer, neuron];
                     
@@ -170,12 +178,19 @@ namespace AbyssalAI.Core
             for (var neuron = 0; neuron < Options.LayerStructure[layer]; neuron++)
                 NeuronLayers[layer, neuron].Adjust(_proposedNeurons[layer, neuron], Options.LearningRate);
 
-            var accuracy = (float)successes.Count(x => x) / trainingData.Count;
+            //var accuracy = (float)successes.Count(x => x) / trainingData.Count;
 
             //output.AverageOffset = accuracy;
             //output.AverageOffset = _exampleCosts[Options.LayerStructure.Length - 1, 0];
-            var totalCost = costs.Sum();
-            output.AverageOffset = totalCost / costs.Count;
+            
+             var totalCost = costs.Sum();
+             output.AverageOffset = totalCost / costs.Count;
+
+            output.AverageCost = new NeuronPairing(n1Costs.Average(), n2Costs.Average());
+
+            output.Accuracy = (float) correctClassifications / trainingData.Count;
+
+            output.AverageOutputLayerActivation = new NeuronPairing(n1S.Average(), n2S.Average());
             return output;
         }
 

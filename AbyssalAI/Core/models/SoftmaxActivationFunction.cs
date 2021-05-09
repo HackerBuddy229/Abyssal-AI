@@ -16,8 +16,6 @@ namespace AbyssalAI.Core.models
                 .Select(doubleActivation => (float)doubleActivation)
                 .ToArray();
             
-            if (output[0] == 0F)
-                throw new Exception();
             return output;
         }
 
